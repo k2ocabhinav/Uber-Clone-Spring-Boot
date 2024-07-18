@@ -67,7 +67,7 @@ We welcome contributions with open arms! 💖 Fork the repository and submit pul
 
 ## 📄 **License**
 
-This project is licensed under the MIT License. See the [LICENSE]() file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## 📧 **Contact**
 
@@ -76,5 +76,3 @@ Have questions or feedback? Reach out via [GitHub Issues](https://github.com/k2o
 ---
 
 Thank you for checking out this project! Your support and contributions are immensely valued. Together, let's build something extraordinary! 🌟
-
-```
