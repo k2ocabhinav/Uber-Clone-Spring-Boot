@@ -1,4 +1,3 @@
-```markdown
 # Uber-Clone-Spring-Boot Github Repo
 
 # 🚗 **Advanced Ride-Sharing Application with Spring Boot and MVC Architecture**
@@ -49,7 +48,7 @@ Welcome to the **Advanced Ride-Sharing Application**! 🚀 This project is a sop
 
 4. **Access the Application**:
    Open your browser and navigate to `http://localhost:8080`.
-		-- Note: This will be updated later.
+   Note: This will be updated later.
 
 ## 🧪 **Running Tests**
 
@@ -77,3 +76,5 @@ Have questions or feedback? Reach out via [GitHub Issues](https://github.com/k2o
 ---
 
 Thank you for checking out this project! Your support and contributions are immensely valued. Together, let's build something extraordinary! 🌟
+
+```
