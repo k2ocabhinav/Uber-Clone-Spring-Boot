@@ -5,7 +5,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.ManyToAny;
+
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;

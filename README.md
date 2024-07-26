@@ -32,7 +32,7 @@ Welcome to the **Advanced Ride-Sharing Application**! 🚀 This project is a sop
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/k2ocabhinav/Uber-Clone-Spring-Boot.git
-   cd Uber-Clone-Spring-Boot
+   cd Uber-Clone-Spring-Boot/ubercloneapp
    ```
 
 2. **Install Dependencies**:
@@ -59,11 +59,11 @@ mvn test
 
 ## 📦 **Deployment**
 
-Our CI/CD pipelines ensure automated and efficient deployment. Configure your CI/CD tools according to your environment and requirements.
+Yet to be implemented. Configure your CI/CD tools according to your environment and requirements.
 
 ## 🤝 **Contributing**
 
-We welcome contributions with open arms! 💖 Fork the repository and submit pull requests. For significant changes, please open an issue first to discuss what you would like to change.
+I welcome contributions with open arms! 💖 Fork the repository and submit pull requests. For significant changes, please open an issue first to discuss what you would like to change.
 
 ## 📄 **License**
 

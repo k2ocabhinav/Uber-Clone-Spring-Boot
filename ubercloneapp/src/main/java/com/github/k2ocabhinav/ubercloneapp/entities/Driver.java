@@ -19,9 +19,12 @@ public class Driver {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String vehicleId;
     private Double rating;
     private Boolean available;
 
     @Column(columnDefinition = "Geometry(Point, 4326)")
     private Point currentLocation;
+
+
 }
