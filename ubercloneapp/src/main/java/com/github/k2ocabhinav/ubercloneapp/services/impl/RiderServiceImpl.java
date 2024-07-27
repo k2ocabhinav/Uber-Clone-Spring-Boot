@@ -5,7 +5,15 @@ import com.github.k2ocabhinav.ubercloneapp.dto.RideDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.RideRequestDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.RiderDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
+import com.github.k2ocabhinav.ubercloneapp.entities.Rider;
+import com.github.k2ocabhinav.ubercloneapp.entities.User;
+import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
+import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
+import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
+import com.github.k2ocabhinav.ubercloneapp.strategies.DriverMatchingStrategy;
+import com.github.k2ocabhinav.ubercloneapp.strategies.FareCalculationStrategy;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -17,15 +25,28 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Builder
 public class RiderServiceImpl implements RiderService {
 
+    private final RiderRepository riderRepository;
+    private final RideRequestRepository rideRequestRepository;
     private final ModelMapper modelMapper;
+    private final FareCalculationStrategy fareCalculationStrategy;
+    private final DriverMatchingStrategy driverMatchingStrategy;
 
     @Override
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
-        log.info(rideRequest.toString());
-        return null;
+        rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
+
+        Double fare = fareCalculationStrategy.calculateFare(rideRequest);
+        rideRequest.setFare(fare);
+
+        RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
+
+        driverMatchingStrategy.findMatchingDrivers(rideRequest);
+
+        return modelMapper.map(savedRideRequest, RideRequestDto.class);
     }
 
     @Override
@@ -46,5 +67,15 @@ public class RiderServiceImpl implements RiderService {
     @Override
     public List<RideDto> getAllMyRides() {
         return List.of();
+    }
+
+    @Override
+    public Rider createNewRider(User user) {
+        Rider rider = Rider
+                .builder()
+                .user(user)
+                .rating(0.0)
+                .build();
+        return riderRepository.save(rider);
     }
 }
