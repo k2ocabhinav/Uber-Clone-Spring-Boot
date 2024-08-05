@@ -3,10 +3,15 @@ package com.github.k2ocabhinav.ubercloneapp.services.impl;
 import com.github.k2ocabhinav.ubercloneapp.dto.DriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.RideDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.RiderDto;
+import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
+import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
+import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
+import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.DriverRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
+import com.github.k2ocabhinav.ubercloneapp.services.RideRequestService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -91,5 +96,11 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public List<RideDto> getAllMyRides() {
         return List.of();
+    }
+
+    @Override
+    public Driver getCurrentDriver() {
+        return driverRepository.findById(2L).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " +
+                "id "+2));
     }
 }

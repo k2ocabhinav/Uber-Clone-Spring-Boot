@@ -3,9 +3,11 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentMethod;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;

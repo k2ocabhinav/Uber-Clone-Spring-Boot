@@ -2,7 +2,10 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

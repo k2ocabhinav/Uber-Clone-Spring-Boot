@@ -1,7 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.entities;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentMethod;
-import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,6 +46,7 @@ public class Ride{
     @Enumerated(EnumType.STRING)
     private RideStatus rideStatus;
 
-    private Double fair;
+    private Double fare;
 
+    private String otp;
 }
