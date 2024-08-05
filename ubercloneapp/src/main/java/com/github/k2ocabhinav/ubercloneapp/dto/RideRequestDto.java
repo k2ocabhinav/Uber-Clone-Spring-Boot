@@ -24,6 +24,7 @@ public class RideRequestDto {
 
     private LocalDateTime requestedTime;
 
+    private Double fare;
     private RiderDto rider;
 
     private RideRequestStatus rideRequestStatus;

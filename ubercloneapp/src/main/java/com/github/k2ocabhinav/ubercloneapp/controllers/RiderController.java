@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/rider")
+@RequestMapping(path = "/riders")
 public class RiderController {
 
     private final RiderService riderService;
