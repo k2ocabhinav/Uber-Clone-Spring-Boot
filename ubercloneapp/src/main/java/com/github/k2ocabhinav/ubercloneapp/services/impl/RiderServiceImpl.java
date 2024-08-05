@@ -12,13 +12,12 @@ import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
 import com.github.k2ocabhinav.ubercloneapp.strategies.DriverMatchingStrategy;
-import com.github.k2ocabhinav.ubercloneapp.strategies.FareCalculationStrategy;
+import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class RiderServiceImpl implements RiderService {
     private final RiderRepository riderRepository;
     private final RideRequestRepository rideRequestRepository;
     private final ModelMapper modelMapper;
-    private final FareCalculationStrategy fareCalculationStrategy;
+    private final RideFareCalculationStrategy rideFareCalculationStrategy;
     private final DriverMatchingStrategy driverMatchingStrategy;
 
     @Override
@@ -39,7 +38,7 @@ public class RiderServiceImpl implements RiderService {
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
 
-        Double fare = fareCalculationStrategy.calculateFare(rideRequest);
+        Double fare = rideFareCalculationStrategy.calculateFare(rideRequest);
         rideRequest.setFare(fare);
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);

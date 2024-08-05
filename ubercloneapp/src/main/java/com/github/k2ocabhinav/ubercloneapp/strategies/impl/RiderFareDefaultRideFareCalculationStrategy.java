@@ -3,16 +3,13 @@ package com.github.k2ocabhinav.ubercloneapp.strategies.impl;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.services.DistanceService;
-import com.github.k2ocabhinav.ubercloneapp.strategies.FareCalculationStrategy;
+import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RiderFareDefaultFareCalculationStrategy implements FareCalculationStrategy {
+public class RiderFareDefaultRideFareCalculationStrategy implements RideFareCalculationStrategy {
 
     private final DistanceService distanceService;
 
@@ -24,4 +21,6 @@ public class RiderFareDefaultFareCalculationStrategy implements FareCalculationS
                         rideRequest.getDropOffLocation());
         return distance * RIDE_FARE_MULTIPLIER;
     }
+
+
 }
