@@ -12,8 +12,6 @@ import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
-import com.github.k2ocabhinav.ubercloneapp.strategies.DriverMatchingStrategy;
-import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.RideStrategyManager;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
