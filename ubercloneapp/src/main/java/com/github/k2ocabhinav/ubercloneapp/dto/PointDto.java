@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PointDto {
+public class    PointDto {
 
     private double[] coordinates;
     private String type = "Point";

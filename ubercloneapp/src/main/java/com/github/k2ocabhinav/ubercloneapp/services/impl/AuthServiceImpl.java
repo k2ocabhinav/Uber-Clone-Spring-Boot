@@ -9,6 +9,7 @@ import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.UserRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.AuthService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserDto signup(SignupDto signupDto){
 
         User user = userRepository.findByEmail(signupDto.getEmail()).orElse(null);
