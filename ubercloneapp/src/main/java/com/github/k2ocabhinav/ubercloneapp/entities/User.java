@@ -12,6 +12,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "app_user")
 public class User {
     @Id

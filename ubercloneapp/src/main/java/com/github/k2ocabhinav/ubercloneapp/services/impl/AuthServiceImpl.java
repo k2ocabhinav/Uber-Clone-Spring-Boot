@@ -9,6 +9,7 @@ import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.UserRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.AuthService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
+import com.github.k2ocabhinav.ubercloneapp.services.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,10 +21,10 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final ModelMapper modelMapper;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
     private final RiderService riderService;
-
+    private final WalletService walletService;
     @Override
     public String login(String email, String password) {
         return "";
@@ -45,7 +46,9 @@ public class AuthServiceImpl implements AuthService {
 //      1. Rider Entity
         riderService.createNewRider(savedUser);
 
-//      TODO 2. Add Wallet related service
+//      TODO 2. Add Wallet related service ✅
+        riderService.createNewRider(savedUser);
+        walletService.createNewWallet(savedUser);
 
 
         return modelMapper.map(savedUser, UserDto.class);

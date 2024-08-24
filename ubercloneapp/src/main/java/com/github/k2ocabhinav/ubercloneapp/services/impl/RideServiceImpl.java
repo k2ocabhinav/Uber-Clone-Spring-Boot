@@ -4,6 +4,7 @@ import com.github.k2ocabhinav.ubercloneapp.dto.RideRequestDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
 import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
+import com.github.k2ocabhinav.ubercloneapp.entities.Rider;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
@@ -33,11 +34,6 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public void matchWithDrivers(RideRequestDto rideRequestDto) {
-
-    }
-
-    @Override
     public Ride createNewRide(RideRequest rideRequest, Driver driver) {
         rideRequest.setRideRequestStatus(RideRequestStatus.CONFIRMED);
 
@@ -58,13 +54,14 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Page<Ride> getAllRidesOfRider(Long riderId, PageRequest pageRequest) {
-        return null;
+    public Page<Ride> getAllRidesOfRider(Rider rider, PageRequest pageRequest) {
+        return rideRepository.findByRider(rider, pageRequest);
     }
 
+
     @Override
-    public Page<Ride> getAllRidesOfDriver(Long driverId, PageRequest pageRequest) {
-        return null;
+    public Page<Ride> getAllRidesOfDriver(Driver driver, PageRequest pageRequest) {
+        return rideRepository.findByDriver(driver, pageRequest);
     }
 
     private String generateRandomOTP() {

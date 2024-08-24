@@ -3,19 +3,17 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.TransactionMethod;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Builder
 public class WalletTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +25,7 @@ public class WalletTransaction {
 
     private TransactionMethod transactionMethod;
 
-    private String TransactionId;
+    private String transactionId;
 
     @OneToOne
     private Ride ride;

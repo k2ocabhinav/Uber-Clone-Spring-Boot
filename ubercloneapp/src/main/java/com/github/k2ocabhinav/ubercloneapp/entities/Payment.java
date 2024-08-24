@@ -1,11 +1,9 @@
 package com.github.k2ocabhinav.ubercloneapp.entities;
 
+import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentMethod;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -15,10 +13,14 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     @OneToOne(fetch = FetchType.LAZY)
     private User user;
