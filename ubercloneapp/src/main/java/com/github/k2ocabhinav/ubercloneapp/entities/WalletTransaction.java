@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Builder
+@ToString
 @Table(indexes = {
         @Index(name = "idx_wallet_transaction_wallet", columnList = "wallet_id"),
         @Index(name = "idx_wallet_transaction_ride", columnList = "ride_id")
@@ -31,13 +32,30 @@ public class WalletTransaction {
 
     private String transactionId;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Ride ride;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Wallet wallet; // One wallet has many transaction
 
     @CreationTimestamp
     private LocalDateTime timestamp;
+
+    @Version
+    private Long version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WalletTransaction that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }
