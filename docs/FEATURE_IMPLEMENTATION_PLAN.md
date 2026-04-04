@@ -302,13 +302,13 @@ Allows riders to book rides in advance. A background scheduler auto-dispatches s
 
 ### 5.7 Acceptance Criteria
 
-- [ ] `./mvnw test` passes (all tests, old + new)
-- [ ] Riders can schedule/cancel/reschedule rides via API
-- [ ] Auto-dispatcher runs every 60s and dispatches due rides
-- [ ] Validation enforces 30min-7day window
-- [ ] Admin can view all scheduled rides
-- [ ] Unit + integration tests
-- [ ] Swagger docs on all endpoints
+- [x] `./mvnw test` passes (all tests, old + new)
+- [x] Riders can schedule/cancel/reschedule rides via API
+- [x] Auto-dispatcher runs every 60s and dispatches due rides
+- [x] Validation enforces 30min-7day window
+- [x] Admin can view all scheduled rides
+- [x] Unit + integration tests
+- [x] Swagger docs on all endpoints
 
 ---
 
@@ -624,14 +624,14 @@ EarningsSummaryDto getEarningsSummary(@Param("driver") Driver driver,
 
 ### 8.9 Acceptance Criteria
 
-- [ ] `./mvnw test` passes
-- [ ] Earning records are auto-created when rides end
-- [ ] Commission calculation uses PlatformConfig rate
-- [ ] Daily/weekly/monthly summaries work
-- [ ] Payout request → approve → process flow works
-- [ ] Admin payout management endpoints work
-- [ ] Unit + integration tests
-- [ ] Swagger docs
+- [x] `./mvnw test` passes
+- [x] Earning records are auto-created when rides end
+- [x] Commission calculation uses PlatformConfig rate
+- [x] Daily/weekly/monthly summaries work
+- [x] Payout request → approve → process flow works
+- [x] Admin payout management endpoints work
+- [x] Unit + integration tests
+- [x] Swagger docs
 
 ---
 
