@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies.impl;
 
+import com.github.k2ocabhinav.ubercloneapp.configs.PlatformConfig;
 import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
 import com.github.k2ocabhinav.ubercloneapp.entities.Payment;
 import com.github.k2ocabhinav.ubercloneapp.entities.Rider;
@@ -13,18 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-//Rider had 232, Driver had 500
-//Ride cost is 100, commission = 30
-//Rider -> 232-100 = 132
-//Driver -> 500 + (100 - 30) = 570
-
-
 @Service
 @RequiredArgsConstructor
 public class WalletPaymentStrategy implements PaymentStrategy {
 
     private final WalletService walletService;
     private final PaymentRepository paymentRepository;
+    private final PlatformConfig platformConfig;
 
     @Override
     @Transactional
@@ -35,7 +31,7 @@ public class WalletPaymentStrategy implements PaymentStrategy {
         walletService.deductMoneyFromWallet(rider.getUser(),
                 payment.getAmount(), null, payment.getRide(), TransactionMethod.RIDE);
 
-        double driversCut = payment.getAmount() * (1 - PLATFORM_COMMISSION);
+        double driversCut = payment.getAmount() * (1 - platformConfig.getCommissionRate());
 
         walletService.addMoneyToWallet(driver.getUser(),
                 driversCut, null, payment.getRide(), TransactionMethod.RIDE);

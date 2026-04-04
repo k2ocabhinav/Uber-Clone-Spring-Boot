@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies.impl;
 
+import com.github.k2ocabhinav.ubercloneapp.configs.PlatformConfig;
 import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
 import com.github.k2ocabhinav.ubercloneapp.entities.Payment;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentStatus;
@@ -10,22 +11,19 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.PaymentStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-//Rider -> 100
-//Driver -> 70 Deduct 30Rs from Driver's wallet
-
-
 @Service
 @RequiredArgsConstructor
 public class CashPaymentStrategy implements PaymentStrategy {
 
     private final WalletService walletService;
     private final PaymentRepository paymentRepository;
+    private final PlatformConfig platformConfig;
 
     @Override
     public void processPayment(Payment payment) {
         Driver driver = payment.getRide().getDriver();
 
-        double platformCommission = payment.getAmount() * PLATFORM_COMMISSION;
+        double platformCommission = payment.getAmount() * platformConfig.getCommissionRate();
 
         walletService.deductMoneyFromWallet(driver.getUser(), platformCommission, null,
                 payment.getRide(), TransactionMethod.RIDE);
@@ -34,8 +32,3 @@ public class CashPaymentStrategy implements PaymentStrategy {
         paymentRepository.save(payment);
     }
 }
-
-//10 ratingsCount -> 4.0
-//new rating 4.6
-//updated rating
-//new rating 44.6/11 -> 4.05

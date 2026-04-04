@@ -1,5 +1,7 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies;
 
+import com.github.k2ocabhinav.ubercloneapp.configs.FareConfig;
+import com.github.k2ocabhinav.ubercloneapp.configs.PlatformConfig;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.DriverMatchingHighestRatedDriverStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.DriverMatchingNearestDriverStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.RideFareSurgePricingFareCalculationStrategy;
@@ -17,9 +19,11 @@ public class RideStrategyManager {
     private final DriverMatchingNearestDriverStrategy nearestDriverStrategy;
     private final RideFareSurgePricingFareCalculationStrategy surgePricingFareCalculationStrategy;
     private final RiderFareDefaultRideFareCalculationStrategy defaultFareCalculationStrategy;
+    private final PlatformConfig platformConfig;
+    private final FareConfig fareConfig;
 
     public DriverMatchingStrategy driverMatchingStrategy(double riderRating) {
-        if(riderRating >= 4.8) {
+        if(riderRating >= platformConfig.getDriverRatingThreshold()) {
             return highestRatedDriverStrategy;
         } else {
             return nearestDriverStrategy;
@@ -27,10 +31,8 @@ public class RideStrategyManager {
     }
 
     public RideFareCalculationStrategy rideFareCalculationStrategy() {
-
-//        6PM to 9PM is SURGE TIME
-        LocalTime surgeStartTime = LocalTime.of(18, 0);
-        LocalTime surgeEndTime = LocalTime.of(21, 0);
+        LocalTime surgeStartTime = LocalTime.of((int) fareConfig.getSurgeStartHour(), 0);
+        LocalTime surgeEndTime = LocalTime.of((int) fareConfig.getSurgeEndHour(), 0);
         LocalTime currentTime = LocalTime.now();
 
         boolean isSurgeTime = currentTime.isAfter(surgeStartTime) && currentTime.isBefore(surgeEndTime);

@@ -1,6 +1,7 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies.impl;
 
 
+import com.github.k2ocabhinav.ubercloneapp.configs.FareConfig;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.services.DistanceService;
 import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class RiderFareDefaultRideFareCalculationStrategy implements RideFareCalculationStrategy {
 
     private final DistanceService distanceService;
+    private final FareConfig fareConfig;
 
     @Override
     public double calculateFare(RideRequest rideRequest) {
@@ -19,7 +21,7 @@ public class RiderFareDefaultRideFareCalculationStrategy implements RideFareCalc
                 .calculateDistance(
                         rideRequest.getPickupLocation(),
                         rideRequest.getDropOffLocation());
-        return distance * RIDE_FARE_MULTIPLIER;
+        return distance * fareConfig.getPerKmRate();
     }
 
 
