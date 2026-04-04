@@ -60,6 +60,7 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
+    @Transactional
     public RideDto cancelRide(Long rideId) {
         Rider rider = getCurrentRider();
         Ride ride = rideService.getRideById(rideId);
@@ -79,6 +80,7 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
+    @Transactional
     public DriverDto rateDriver(Long rideId, Integer rating) {
         Ride ride = rideService.getRideById(rideId);
         Rider rider = getCurrentRider();
@@ -94,12 +96,14 @@ public class RiderServiceImpl implements RiderService {
         return ratingService.rateDriver(ride, rating);
     }
     @Override
+    @Transactional(readOnly = true)
     public RiderDto getMyProfile() {
         Rider currentRider = getCurrentRider();
         return modelMapper.map(currentRider, RiderDto.class);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RideDto> getAllMyRides(PageRequest pageRequest) {
         Rider currentRider = getCurrentRider();
         return rideService.getAllRidesOfRider(currentRider, pageRequest).map(
@@ -108,6 +112,7 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
+    @Transactional
     public Rider createNewRider(User user) {
         Rider rider = Rider
                 .builder()
@@ -118,6 +123,7 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Rider getCurrentRider() {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return riderRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(

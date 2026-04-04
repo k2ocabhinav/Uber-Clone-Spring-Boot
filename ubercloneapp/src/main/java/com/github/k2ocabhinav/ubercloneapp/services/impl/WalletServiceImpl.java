@@ -92,12 +92,14 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Wallet findWalletById(Long walletId) {
         return walletRepository.findById(walletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: "+walletId));
     }
 
     @Override
+    @Transactional
     public Wallet createNewWallet(User user) {
         Wallet wallet = new Wallet();
         wallet.setUser(user);
@@ -105,6 +107,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Wallet findByUser(User user) {
         return walletRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found for user with id: "+user.getId()));

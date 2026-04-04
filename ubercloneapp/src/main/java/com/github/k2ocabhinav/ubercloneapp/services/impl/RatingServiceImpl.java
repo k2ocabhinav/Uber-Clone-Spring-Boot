@@ -15,6 +15,7 @@ import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class RatingServiceImpl implements RatingService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public DriverDto rateDriver(Ride ride, Integer rating) {
         Driver driver = ride.getDriver();
         Rating ratingObj = ratingRepository.findByRide(ride)
@@ -49,6 +51,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    @Transactional
     public RiderDto rateRider(Ride ride, Integer rating) {
         Rider rider = ride.getRider();
         Rating ratingObj = ratingRepository.findByRide(ride)
@@ -71,6 +74,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    @Transactional
     public void createNewRating(Ride ride) {
         Rating rating = Rating.builder()
                 .rider(ride.getRider())

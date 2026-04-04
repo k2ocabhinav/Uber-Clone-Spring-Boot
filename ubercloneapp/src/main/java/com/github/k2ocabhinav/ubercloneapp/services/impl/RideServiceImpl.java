@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
@@ -28,12 +29,14 @@ public class RideServiceImpl implements RideService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Ride getRideById(Long rideId) {
         return rideRepository.findById(rideId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: "+rideId));
     }
 
     @Override
+    @Transactional
     public Ride createNewRide(RideRequest rideRequest, Driver driver) {
         rideRequest.setRideRequestStatus(RideRequestStatus.CONFIRMED);
 
@@ -48,18 +51,21 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public Ride updateRideStatus(Ride ride, RideStatus rideStatus) {
         ride.setRideStatus(rideStatus);
         return rideRepository.save(ride);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Ride> getAllRidesOfRider(Rider rider, PageRequest pageRequest) {
         return rideRepository.findByRider(rider, pageRequest);
     }
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Ride> getAllRidesOfDriver(Driver driver, PageRequest pageRequest) {
         return rideRepository.findByDriver(driver, pageRequest);
     }

@@ -6,6 +6,7 @@ import com.github.k2ocabhinav.ubercloneapp.services.WalletTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class WalletTransactionServiceImpl implements WalletTransactionService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public void createNewWalletTransaction(WalletTransaction walletTransaction) {
         walletTransactionRepository.save(walletTransaction);
     }

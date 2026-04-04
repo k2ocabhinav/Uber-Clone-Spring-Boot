@@ -9,6 +9,7 @@ import com.github.k2ocabhinav.ubercloneapp.services.PaymentService;
 import com.github.k2ocabhinav.ubercloneapp.strategies.PaymentStrategyManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentStrategyManager paymentStrategyManager;
 
     @Override
+    @Transactional
     public void processPayment(Ride ride) {
         Payment payment = paymentRepository.findByRide(ride)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for ride with id: "+ride.getId()));
@@ -24,6 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public Payment createNewPayment(Ride ride) {
         Payment payment = Payment.builder()
                 .ride(ride)
@@ -35,6 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void updatePaymentStatus(Payment payment, PaymentStatus status) {
         payment.setPaymentStatus(status);
         paymentRepository.save(payment);

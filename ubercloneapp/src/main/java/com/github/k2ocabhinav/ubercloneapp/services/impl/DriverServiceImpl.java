@@ -56,6 +56,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public RideDto cancelRide(Long rideId) {
         Ride ride = rideService.getRideById(rideId);
 
@@ -75,6 +76,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public RideDto startRide(Long rideId, String otp) {
         Ride ride = rideService.getRideById(rideId);
         Driver driver = getCurrentDriver();
@@ -124,6 +126,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public RiderDto rateRider(Long rideId, Integer rating) {
         Ride ride = rideService.getRideById(rideId);
         Driver driver = getCurrentDriver();
@@ -140,12 +143,14 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DriverDto getMyProfile() {
         Driver currentDriver = getCurrentDriver();
         return modelMapper.map(currentDriver, DriverDto.class);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RideDto> getAllMyRides(PageRequest pageRequest) {
         Driver currentDriver = getCurrentDriver();
         return rideService.getAllRidesOfDriver(currentDriver, pageRequest).map(
@@ -154,6 +159,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Driver getCurrentDriver() {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return driverRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " +
@@ -161,12 +167,14 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public Driver updateDriverAvailability(Driver driver, boolean available) {
         driver.setAvailable(available);
         return driverRepository.save(driver);
     }
 
     @Override
+    @Transactional
     public Driver createNewDriver(Driver driver) {
         return driverRepository.save(driver);
     }
