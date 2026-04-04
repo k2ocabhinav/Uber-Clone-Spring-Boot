@@ -3,7 +3,9 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -20,11 +22,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
 
     @Column(unique = true)
     private String email;
     private String password;
+    private String phoneNumber;
+    private Boolean active;
+
+    @CreationTimestamp
+    private LocalDateTime createdTime;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)

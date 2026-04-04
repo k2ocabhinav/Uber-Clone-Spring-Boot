@@ -2,7 +2,10 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Point;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,6 +32,9 @@ public class Driver {
 
     @Column(columnDefinition = "Geometry(Point, 4326)")
     private Point currentLocation;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
 
 }
