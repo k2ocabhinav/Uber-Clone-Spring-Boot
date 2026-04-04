@@ -9,3 +9,9 @@ ai_instructions/
 # OS / IDE
 .DS_Store
 .vscode/
+
+# AI Agent Specific Files
+CLAUDE.md
+claude.md
+AGENTS.md
+agents.md
