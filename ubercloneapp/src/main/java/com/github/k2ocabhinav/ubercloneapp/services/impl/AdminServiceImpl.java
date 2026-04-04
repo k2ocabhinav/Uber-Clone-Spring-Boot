@@ -15,6 +15,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.*;
 import com.github.k2ocabhinav.ubercloneapp.services.AdminService;
+import com.github.k2ocabhinav.ubercloneapp.services.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,12 +38,18 @@ public class AdminServiceImpl implements AdminService {
     private final RideRepository rideRepository;
     private final PaymentRepository paymentRepository;
     private final RideRequestRepository rideRequestRepository;
+    private final CacheService cacheService;
 
     private static final double PLATFORM_COMMISSION = 0.30;
 
     @Override
     @Transactional(readOnly = true)
     public DashboardDto getDashboard() {
+        Object cached = cacheService.getCachedDashboard();
+        if (cached != null) {
+            return (DashboardDto) cached;
+        }
+        
         long totalUsers = userRepository.count();
         long totalDrivers = driverRepository.count();
         long totalRides = rideRepository.count();
@@ -64,7 +71,7 @@ public class AdminServiceImpl implements AdminService {
         ridesByStatus.put("ONGOING", activeRides);
         ridesByStatus.put("CONFIRMED", rideRepository.countByRideStatus(RideStatus.CONFIRMED));
         
-        return DashboardDto.builder()
+        DashboardDto dashboard = DashboardDto.builder()
                 .totalUsers(totalUsers)
                 .totalDrivers(totalDrivers)
                 .totalRides(totalRides)
@@ -73,11 +80,26 @@ public class AdminServiceImpl implements AdminService {
                 .pendingApprovals(pendingApprovals)
                 .ridesByStatus(ridesByStatus)
                 .build();
+        
+        cacheService.cacheDashboard(dashboard);
+        return dashboard;
     }
 
     @Override
     @Transactional(readOnly = true)
     public AdminStatsDto getDailyStats(LocalDate date) {
+        Long cachedCount = cacheService.getAvailableDriversCount();
+        long activeDrivers;
+        
+        if (cachedCount != null) {
+            activeDrivers = cachedCount;
+        } else {
+            activeDrivers = driverRepository.findAll().stream()
+                    .filter(Driver::getAvailable)
+                    .count();
+            cacheService.cacheAvailableDriversCount(activeDrivers);
+        }
+        
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
         
@@ -112,10 +134,6 @@ public class AdminServiceImpl implements AdminService {
                            created.isAfter(startOfDay) && 
                            created.isBefore(endOfDay);
                 })
-                .count();
-        
-        long activeDrivers = driverRepository.findAll().stream()
-                .filter(Driver::getAvailable)
                 .count();
         
         long pendingDriverApprovals = rideRequestRepository.findByRideRequestStatus(RideRequestStatus.PENDING).size();
@@ -177,6 +195,8 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeConflictException("Driver not found"));
         driver.setAvailable(true);
         driverRepository.save(driver);
+        cacheService.evictAvailableDriversCache();
+        cacheService.evictDashboardCache();
     }
 
     @Override
@@ -186,6 +206,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeConflictException("Driver not found"));
         driver.setAvailable(false);
         driverRepository.save(driver);
+        cacheService.evictDashboardCache();
     }
 
     @Override
