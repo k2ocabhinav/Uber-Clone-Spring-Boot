@@ -4,3 +4,5 @@ agents.md
 .claude/
 *.anthropic*
 ai_instructions/
+.agents/
+.codex/

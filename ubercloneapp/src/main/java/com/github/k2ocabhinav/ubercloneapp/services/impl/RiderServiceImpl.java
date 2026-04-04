@@ -126,8 +126,9 @@ public class RiderServiceImpl implements RiderService {
     @Transactional(readOnly = true)
     public Rider getCurrentRider() {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return riderRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(
-                "Rider not found with id: "+ principal.getUserId()
-        ));
+        return riderRepository.findByUserId(principal.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Rider not found for user id " + principal.getUserId()
+                ));
     }
 }

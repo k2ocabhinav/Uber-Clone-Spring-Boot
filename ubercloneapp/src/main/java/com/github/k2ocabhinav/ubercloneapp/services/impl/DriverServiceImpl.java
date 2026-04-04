@@ -162,8 +162,8 @@ public class DriverServiceImpl implements DriverService {
     @Transactional(readOnly = true)
     public Driver getCurrentDriver() {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return driverRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " +
-                "id "+ principal.getUserId()));
+        return driverRepository.findByUserId(principal.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found for user id " + principal.getUserId()));
     }
 
     @Override

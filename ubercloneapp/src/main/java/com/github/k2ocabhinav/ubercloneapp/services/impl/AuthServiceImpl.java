@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.services.impl;
 
+import com.github.k2ocabhinav.ubercloneapp.dto.AuthResponseDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.DriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.SignupDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.UserDto;
@@ -9,6 +10,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.Role;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.UserRepository;
+import com.github.k2ocabhinav.ubercloneapp.security.JwtTokenProvider;
 import com.github.k2ocabhinav.ubercloneapp.services.AuthService;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
@@ -16,6 +18,7 @@ import com.github.k2ocabhinav.ubercloneapp.services.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -31,10 +34,27 @@ public class AuthServiceImpl implements AuthService {
     private final RiderService riderService;
     private final WalletService walletService;
     private final DriverService driverService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public String login(String email, String password) {
-        return "";
+    public AuthResponseDto login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeConflictException("Invalid password");
+        }
+
+        String role = user.getRoles().contains(DRIVER) ? DRIVER.name() : Role.RIDER.name();
+        String token = jwtTokenProvider.generateToken(user.getEmail(), user.getId(), role);
+
+        return AuthResponseDto.builder()
+                .token(token)
+                .userId(user.getId())
+                .email(user.getEmail())
+                .role(role)
+                .build();
     }
 
     @Override
@@ -46,6 +66,8 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeConflictException("Cannot signup, User already exists with email "+signupDto.getEmail());
 
         User mappedUser = modelMapper.map(signupDto, User.class);
+        mappedUser.setPassword(passwordEncoder.encode(signupDto.getPassword()));
+        mappedUser.setActive(true);
         mappedUser.setRoles(Set.of(Role.RIDER));
         User savedUser = userRepository.save(mappedUser);
 
@@ -54,7 +76,6 @@ public class AuthServiceImpl implements AuthService {
         riderService.createNewRider(savedUser);
 
 //      TODO 2. Add Wallet related service ✅
-        riderService.createNewRider(savedUser);
         walletService.createNewWallet(savedUser);
 
 

@@ -1,78 +1,124 @@
-# Uber-Clone-Spring-Boot Github Repo
+# Uber Clone Spring Boot
 
-# 🚗 **Advanced Ride-Sharing Application with Spring Boot and MVC Architecture**
+Backend for a ride-sharing application built with Spring Boot 3.3.1, Java 22, PostgreSQL/PostGIS, Redis-backed caching, JWT authentication, and Swagger/OpenAPI.
 
-Welcome to the **Advanced Ride-Sharing Application**! 🚀 This project is a sophisticated Uber Clone, harnessing the power of cutting-edge technology and robust design to offer a seamless, secure, and scalable user experience. Ready to dive in? Let's go! 🎉
+## Current State
 
-## 🌟 **Features at a Glance**
+- This repository is still under active development and contains both legacy work and recent stabilization changes.
+- The latest hardening work was continued on `codex/final-build-stabilization` from the existing `feature/production-ready` branch.
+- Verified locally on 2026-04-05:
+  - `cd ubercloneapp && ./mvnw test`
+  - `cd ubercloneapp && ./mvnw spring-boot:run`
+- `feature/production-ready` should be treated as an integration or release-candidate branch, not as the long-lived production branch.
 
-- **🚀 Spring Boot MVC & RESTful APIs**: Clean, modular architecture with scalable client-server communication.
-- **🔗 Hibernate ORM**: Efficient and reliable object-relational mapping.
-- **📊 Spring Boot Data JPA**: Streamlined data access for maximum efficiency.
-- **🛡️ Spring Security**: Top-notch security features to keep your data safe.
-- **🧪 JUnit Testing**: Comprehensive testing framework for bulletproof code.
-- **⚙️ CI/CD Pipelines**: Automated deployment for smooth and hassle-free updates.
-- **📡 WebSocket**: Real-time notifications for an engaging user experience.
-- **🌍 OSRM**: Advanced geolocation and routing management.
-- **💳 Secure Payment Methods**: Seamless and safe transactions.
-- **👥 Comprehensive User Management**: Full-featured system for managing users.
+## What Is Implemented
 
-## 🛠️ **Technologies Under the Hood**
+- Rider, driver, auth, wallet, payment, rating, and ride lifecycle flows
+- JWT-based login and stateless Spring Security
+- Strategy-based fare calculation and driver matching
+- PostGIS-backed geospatial queries for nearby driver selection
+- OSRM distance integration for fare calculation
+- Admin analytics, pending driver approval, and revenue reporting
+- Actuator health indicators and Redis cache support
+- Unit, strategy, service, and controller integration tests
 
-- **Java**: The backbone of our application.
-- **Spring Boot**: Powering our backend with ease.
-- **Spring Security**: Fortifying our application with robust security.
-- **Hibernate**: ORM that makes database interactions a breeze.
-- **JUnit**: Ensuring our code stands up to rigorous testing.
-- **WebSocket**: For real-time, dynamic communication.
-- **OSRM**: Handling all things geolocation.
+## Repository Layout
 
-## 🚀 **Getting Started**
+- `ubercloneapp/` - Maven project root and application source
+- `docs/` - implementation notes and release workflow documentation
+- `.claude/` - local agent orchestration commands, hook docs, and helper scripts
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/k2ocabhinav/Uber-Clone-Spring-Boot.git
-   cd Uber-Clone-Spring-Boot/ubercloneapp
-   ```
+## Prerequisites
 
-2. **Install Dependencies**:
-   Ensure you have [Maven](https://maven.apache.org/) installed. Then run:
-   ```bash
-   mvn install
-   ```
+- Java 22
+- PostgreSQL with PostGIS available
+- Local runtime database: `postgres`
+- Local test database: `testpostgres`
+- Database user: `postgres`
+- Database password: `user`
+- Optional Redis instance on `localhost:6379`
 
-3. **Run the Application**:
-   ```bash
-   mvn spring-boot:run
-   ```
+The application and tests attempt `CREATE EXTENSION IF NOT EXISTS postgis` on startup. If the database user cannot create extensions, install PostGIS ahead of time.
 
-4. **Access the Application**:
-   Open your browser and navigate to `http://localhost:8080`.
-   Note: This will be updated later.
+## Local Setup
 
-## 🧪 **Running Tests**
+1. Start PostgreSQL and ensure both `postgres` and `testpostgres` exist.
+2. Optionally start Redis for cache-backed features:
 
-To run the tests, use:
 ```bash
-mvn test
+cd ubercloneapp
+docker compose up -d redis
 ```
 
-## 📦 **Deployment**
+3. Build or run the application:
 
-Yet to be implemented. Configure your CI/CD tools according to your environment and requirements.
+```bash
+cd ubercloneapp
+./mvnw clean install
+./mvnw spring-boot:run
+```
 
-## 🤝 **Contributing**
+4. Open Swagger UI:
+   - `http://localhost:8080/swagger-ui/index.html`
+   - `http://localhost:8080/swagger-ui.html`
 
-I welcome contributions with open arms! 💖 Fork the repository and submit pull requests. For significant changes, please open an issue first to discuss what you would like to change.
+`src/main/resources/data.sql` is loaded on normal startup and seeds a small dataset aligned with the current schema.
 
-## 📄 **License**
+## Running Tests
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```bash
+cd ubercloneapp
+./mvnw test
+```
 
-## 📧 **Contact**
+Notes:
 
-Have questions or feedback? Reach out via [GitHub Issues](https://github.com/k2ocabhinav/Uber-Clone-Spring-Boot/issues).
+- Tests use the `test` profile.
+- Tests do not load `src/main/resources/data.sql`.
+- Integration tests rely on the test-only auth headers defined in `TestSecurityConfig`:
+  - `X-Test-User-Id`
+  - `X-Test-Email`
+  - `X-Test-Role`
+- Most controller responses are wrapped in `ApiResponse<?>` by `GlobalResponseHandler`.
 
----
+## Architecture Snapshot
 
-Thank you for checking out this project! Your support and contributions are immensely valued. Together, let's build something extraordinary! 🌟
+- Controllers: `AuthController`, `RiderController`, `DriverController`, `AdminController`
+- Services: interfaces in `services/`, implementations in `services/impl/`
+- Repositories: Spring Data JPA repositories, including PostGIS queries in `DriverRepository`
+- Strategies:
+  - `RideStrategyManager` chooses fare and driver-matching strategies
+  - `PaymentStrategyManager` chooses cash or wallet payment handling
+- Security:
+  - `JwtAuthenticationFilter`
+  - `JwtTokenProvider`
+  - stateless `SecurityConfig`
+- Cross-cutting:
+  - `GlobalResponseHandler`
+  - `GlobalExceptionHandler`
+  - custom actuator health indicators
+- External integrations:
+  - OSRM public routing API
+  - Redis cache support
+
+## Branching Recommendation
+
+Use a clear promotion path instead of treating a feature branch as production:
+
+- `main` - long-lived integration branch
+- `feature/*` - feature and exploratory work, including the existing `feature/production-ready`
+- `codex/final-build-stabilization` - hardening and verification branch
+- `production` - promotion-only branch that should always contain the cleanest releasable state
+
+Recommended flow:
+
+1. Build and test on a feature or stabilization branch.
+2. Merge or cherry-pick only validated commits into `production`.
+3. Protect `production` from direct experimental work.
+4. Tag releases from `production`.
+
+## Related Docs
+
+- `AGENTS.md` - repository guidance for coding agents
+- `docs/IMPLEMENTATION-INSTRUCTIONS.md` - stabilization and release notes
+- `.claude/...` - local agent command and helper documentation

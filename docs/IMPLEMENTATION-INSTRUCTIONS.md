@@ -1,245 +1,101 @@
-# Implementation Instructions: Uber Clone Backend Completion
+# Stabilization and Release Instructions
 
-## Branch: `feature/complete-backend-jwt-auth`
+This document replaces the older handoff note that referenced unfinished JWT work on `feature/complete-backend-jwt-auth`. The repository has moved beyond that point, and the current focus is build stabilization, test reliability, and release branch hygiene.
 
-## Status: PARTIAL IMPLEMENTATION COMPLETE
+## Current Status
 
-The following tasks have been **COMPLETED** (do not redo):
+- Working branch for the latest hardening pass: `codex/final-build-stabilization`
+- Historical feature branch with large recent changes: `feature/production-ready`
+- Verified locally on 2026-04-05:
+  - `cd ubercloneapp && ./mvnw test`
+  - `cd ubercloneapp && ./mvnw spring-boot:run`
 
-### ✅ Already Implemented
+At the time of this update, the local Maven test suite passes and the application starts successfully against PostgreSQL/PostGIS.
 
-**Phase 1: Critical Bugs - ALL COMPLETE**
-- [x] `DriverRepository.java` - Fixed `FROM driver` → `FROM drivers`
-- [x] `AuthServiceImpl.java` - Removed duplicate `riderService.createNewRider()` call
-- [x] `WalletServiceImpl.java` - Implemented `withdrawAllMyMoneyFromWallet(User user)`
-- [x] `WalletService.java` - Updated interface to match
+## What Was Stabilized
 
-**Phase 2: JWT Authentication - PARTIAL**
-- [x] `pom.xml` - Added spring-boot-starter-security and JJWT dependencies
-- [x] `application.properties` - Added `jwt.secret` and `jwt.expiration`
-- [x] `JwtTokenProvider.java` - Created (token generation/validation)
-- [x] `JwtAuthenticationFilter.java` - Created (extracts JWT from requests)
-- [x] `UserPrincipal.java` - Created (SecurityContext principal)
-- [x] `SecurityConfig.java` - Created (Spring Security + BCrypt config)
-- [x] `AuthResponseDto.java` - Created (token response DTO)
-- [x] `AuthService.java` - Updated interface to return `AuthResponseDto`
-- [x] `AuthServiceImpl.java` - Implemented login with JWT + password encoding
-- [ ] `AuthController.java` - **NEEDS LOGIN ENDPOINT** (see below)
-- [ ] `RiderServiceImpl.java` - **NEEDS JWT user lookup** (see below)
-- [ ] `DriverServiceImpl.java` - **NEEDS JWT user lookup** (see below)
+The latest pass focused on making the recently expanded codebase consistent and testable:
 
----
+- Completed JWT-backed login flow and controller endpoint wiring
+- Replaced hardcoded rider and driver lookups with `findByUserId(...)` logic
+- Repaired ModelMapper edge cases for user names and geometry conversions
+- Updated test configuration to use the `test` profile cleanly
+- Added test-only request headers for authenticated controller integration tests
+- Realigned `data.sql` with the current schema and enum persistence behavior
+- Verified the app boots with the default profile and seeded data
 
-## REMAINING TASKS FOR LOCAL AGENT
+## Verification Commands
 
-### Task 1: Complete AuthController with Login Endpoint
-**File**: `controllers/AuthController.java`
+Run all commands from the Maven project root:
 
-**Add**:
-```java
-@PostMapping("/login")
-ResponseEntity<AuthResponseDto> login(@RequestBody Map<String, String> credentials) {
-    AuthResponseDto response = authService.login(credentials.get("email"), credentials.get("password"));
-    return ResponseEntity.ok(response);
-}
+```bash
+cd ubercloneapp
+./mvnw clean install
+./mvnw test
+./mvnw spring-boot:run
 ```
 
-Import `AuthResponseDto` and `Map`.
+Environment assumptions:
 
----
+- PostgreSQL on `localhost:5432`
+- Databases: `postgres` and `testpostgres`
+- Username: `postgres`
+- Password: `user`
+- Optional Redis on `localhost:6379`
 
-### Task 2: Replace Hardcoded User IDs with JWT Lookup
+## Branch Roles
 
-**File**: `services/impl/RiderServiceImpl.java` - method `getCurrentRider()`
+To keep release management understandable, use each branch for one purpose:
 
-**Current code** (around line 122):
-```java
-// TODO: implement Spring security
-return riderRepository.findById(1L).orElseThrow(...)
-```
+- `main`
+  - ongoing integration branch
+- `feature/*`
+  - implementation and exploratory branches
+- `feature/production-ready`
+  - keep as a historical release-candidate or integration branch until all needed work is promoted elsewhere
+- `codex/final-build-stabilization`
+  - hardening, documentation, and final verification
+- `production`
+  - clean promotion-only branch for the best validated build
 
-**Replace with**:
-```java
-import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+## Recommendation for the Existing `feature/production-ready` Branch
 
-// ... in getCurrentRider() method:
-Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-Long userId = principal.getUserId();
+Do not delete it immediately. It already contains a large amount of implementation work and serves as a useful audit trail.
 
-Rider rider = riderRepository.findByUserId(userId)
-    .orElseThrow(() -> new ResourceNotFoundException("Rider not found for user id: " + userId));
-return rider;
-```
+Recommended handling:
 
-Also need to add `findByUserId` to `RiderRepository.java`:
-```java
-Optional<Rider> findByUserId(Long userId);
-```
+1. Finish stabilization on `codex/final-build-stabilization`.
+2. Commit the validated changes there.
+3. Create a dedicated `production` branch from that clean verified commit.
+4. Treat `feature/production-ready` as a release-candidate history branch, not the final source of truth.
+5. After the team is comfortable with the new flow, stop using `feature/production-ready` as a production signal.
 
----
+## Promotion Workflow
 
-**File**: `services/impl/DriverServiceImpl.java` - method `getCurrentDriver()`
+Use this workflow for future releases:
 
-**Current code** (around line 156):
-```java
-return driverRepository.findById(2L).orElseThrow(...)
-```
+1. Implement or stabilize work on `feature/*` or `codex/final-build-stabilization`.
+2. Run `./mvnw test`.
+3. Run a local smoke start with `./mvnw spring-boot:run`.
+4. Merge or cherry-pick only the validated commit set into `production`.
+5. Tag the release from `production`.
+6. Protect `production` in the remote host so it is never used for active feature work.
 
-**Replace with**:
-```java
-Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-Long userId = principal.getUserId();
+## Testing Notes for Future Agents
 
-Driver driver = driverRepository.findByUserId(userId)
-    .orElseThrow(() -> new ResourceNotFoundException("Driver not found for user id: " + userId));
-return driver;
-```
+- Integration tests rely on the test headers in `TestSecurityConfig`:
+  - `X-Test-User-Id`
+  - `X-Test-Email`
+  - `X-Test-Role`
+- Controller responses are usually wrapped by `ApiResponse<?>`, so assertions should target `$.data` or `$.error`.
+- `UserPrincipal.getUserId()` is a `User.id`; always map from user to rider or driver through repository methods such as `findByUserId(...)`.
+- `data.sql` is loaded only for the default profile and must stay aligned with the live schema.
 
-Also need to add `findByUserId` to `DriverRepository.java`:
-```java
-Optional<Driver> findByUserId(Long userId);
-```
+## Remaining Operational Improvements
 
----
+The build is now in a much better place, but a few release-engineering improvements are still worth doing:
 
-### Task 3: Add Wallet Balance Validation
-**File**: `strategies/impl/WalletPaymentStrategy.java`
-
-**Add at start of `processPayment`**:
-```java
-if (wallet.getBalance() < payment.getAmount()) {
-    throw new RuntimeConflictException("Insufficient wallet balance. Required: "
-        + payment.getAmount() + ", Available: " + wallet.getBalance());
-}
-```
-
-Import `RuntimeConflictException`.
-
----
-
-### Task 4: Add Default Case to PaymentStrategyManager
-**File**: `strategies/PaymentStrategyManager.java`
-
-**Add default case**:
-```java
-public PaymentStrategy paymentStrategy(PaymentMethod paymentMethod) {
-    return switch (paymentMethod) {
-        case WALLET -> walletPaymentStrategy;
-        case CASH -> cashPaymentStrategy;
-        default -> throw new RuntimeConflictException("Unsupported payment method: " + paymentMethod);
-    };
-}
-```
-
----
-
-### Task 5: Add Driver Endpoints
-**File**: `controllers/DriverController.java`
-
-**Add two new endpoints**:
-```java
-@PutMapping("/updateLocation")
-ResponseEntity<DriverDto> updateLocation(@RequestBody PointDto location) {
-    Driver driver = driverService.getCurrentDriver();
-    driver.setCurrentLocation(GeometryUtil.createPoint(location));
-    driver = driverService.createNewDriver(driver);
-    return ResponseEntity.ok(modelMapper.map(driver, DriverDto.class));
-}
-
-@GetMapping("/availableRideRequests")
-ResponseEntity<List<RideRequestDto>> getAvailableRideRequests() {
-    Driver driver = driverService.getCurrentDriver();
-    List<RideRequest> requests = rideRequestService.findPendingRequestsNearLocation(
-        driver.getCurrentLocation());
-    return ResponseEntity.ok(requests.stream()
-        .map(r -> modelMapper.map(r, RideRequestDto.class))
-        .collect(Collectors.toList()));
-}
-```
-
-**Note**: You may need to add `RideRequestRepository` with a method to find pending requests by location, or add a `RideRequestService` method.
-
----
-
-### Task 6: (Optional) Add RiderRepository findByUserId
-**File**: `repositories/RiderRepository.java`
-
-**If not already present**:
-```java
-Optional<Rider> findByUserId(Long userId);
-```
-
-And update `entities/Rider.java` to ensure it has a `user` field that links to User entity.
-
----
-
-## Phase 4: Modularization (Optional but Recommended)
-
-These are for making the code more resume-worthy by showing architectural thinking:
-
-### Task 7: Create Abstract Domain Classes
-**New Package**: `domain/`
-
-```java
-// domain/ServiceProvider.java
-@Entity
-@DiscriminatorColumn(name = "provider_type")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class ServiceProvider {
-    @Id
-    Long id;
-    Double rating;
-    Boolean available;
-    Point currentLocation;
-    LocalDateTime createdAt;
-}
-```
-
-```java
-// domain/ServiceRequest.java
-@Entity
-@DiscriminatorColumn(name = "service_type")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class ServiceRequest {
-    @Id
-    Long id;
-    Point pickupLocation;
-    Point dropOffLocation;
-    BigDecimal fare;
-    LocalDateTime createdAt;
-}
-```
-
-### Task 8: Create Config Classes
-**New Files**:
-- `configs/FareConfig.java` - surge hours, base fare, per-km rate
-- `configs/PlatformConfig.java` - commission rate
-
-### Task 9: Create Architecture Documentation
-**New File**: `docs/ARCHITECTURE.md`
-
-Document:
-1. Project overview
-2. How to add a new fare calculation strategy
-3. How to add a new provider matching algorithm
-4. Database schema overview
-
----
-
-## Verification Checklist
-
-After completing remaining tasks, verify:
-
-- [ ] `./mvnw clean install` succeeds
-- [ ] `./mvnw test` passes
-- [ ] POST `/auth/signup` creates user with encoded password
-- [ ] POST `/auth/login` returns JWT token
-- [ ] Protected endpoints work with JWT in Authorization header
-- [ ] High-rated rider requesting ride works (PostGIS fixed)
-- [ ] Wallet payment fails gracefully with insufficient balance
-- [ ] Driver can update location
-- [ ] Driver can see available ride requests
+- Add CI gates that run `./mvnw test` on every branch intended for promotion
+- Add branch protection for `production`
+- Decide whether Redis should be mandatory for local development or remain optional
+- Add a small smoke test or health-check job for startup verification against PostgreSQL/PostGIS

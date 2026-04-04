@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies.impl;
 
+import com.github.k2ocabhinav.ubercloneapp.configs.FareConfig;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.services.DistanceService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,13 +19,18 @@ class FareCalculationTest {
     @Mock
     private DistanceService distanceService;
 
+    private FareConfig fareConfig;
     private RiderFareDefaultRideFareCalculationStrategy defaultStrategy;
     private RideFareSurgePricingFareCalculationStrategy surgeStrategy;
 
     @BeforeEach
     void setUp() {
-        defaultStrategy = new RiderFareDefaultRideFareCalculationStrategy(distanceService);
-        surgeStrategy = new RideFareSurgePricingFareCalculationStrategy(distanceService);
+        fareConfig = new FareConfig();
+        fareConfig.setPerKmRate(10.0);
+        fareConfig.setSurgeMultiplier(2.0);
+        
+        defaultStrategy = new RiderFareDefaultRideFareCalculationStrategy(distanceService, fareConfig);
+        surgeStrategy = new RideFareSurgePricingFareCalculationStrategy(distanceService, fareConfig);
     }
 
     @Test

@@ -3,7 +3,9 @@ package com.github.k2ocabhinav.ubercloneapp.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.k2ocabhinav.ubercloneapp.config.TestSecurityConfig;
 import com.github.k2ocabhinav.ubercloneapp.dto.SignupDto;
+import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.UserRepository;
+import com.github.k2ocabhinav.ubercloneapp.repositories.WalletRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,9 +31,13 @@ class AuthControllerIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private UserRepository userRepository;
+    @Autowired private RiderRepository riderRepository;
+    @Autowired private WalletRepository walletRepository;
 
     @BeforeEach
     void setUp() {
+        riderRepository.deleteAll();
+        walletRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -43,26 +49,31 @@ class AuthControllerIntegrationTest {
         signupDto.setEmail("test@example.com");
         signupDto.setPassword("password123");
 
-        mockMvc.perform(post("/auth/signup")
+                mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.email").value("test@example.com"));
     }
 
     @Test
-    @DisplayName("POST /auth/signup with invalid email should return 400")
-    void signup_WithInvalidEmail_ShouldReturn400() throws Exception {
+    @DisplayName("POST /auth/signup with duplicate email should return 409")
+    void signup_WithDuplicateEmail_ShouldReturn409() throws Exception {
         SignupDto signupDto = new SignupDto();
         signupDto.setName("Test User");
-        signupDto.setEmail("invalid-email");
-        signupDto.setPassword("123");
+        signupDto.setEmail("duplicate@test.com");
+        signupDto.setPassword("password123");
 
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupDto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error.message").value(org.hamcrest.Matchers.containsString("already exists")));
     }
 
     @Test
@@ -78,7 +89,7 @@ class AuthControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(signupDto)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/auth/login")
+                mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {
@@ -87,12 +98,14 @@ class AuthControllerIntegrationTest {
                             }
                             """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists());
+                .andExpect(jsonPath("$.data.token").exists())
+                .andExpect(jsonPath("$.data.email").value("login@test.com"))
+                .andExpect(jsonPath("$.data.role").value("RIDER"));
     }
 
     @Test
-    @DisplayName("POST /auth/login with wrong password should return 401")
-    void login_WithWrongPassword_ShouldReturn401() throws Exception {
+    @DisplayName("POST /auth/login with wrong password should return 409")
+    void login_WithWrongPassword_ShouldReturn409() throws Exception {
         SignupDto signupDto = new SignupDto();
         signupDto.setName("Test User");
         signupDto.setEmail("wrong@test.com");
@@ -103,7 +116,7 @@ class AuthControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(signupDto)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/auth/login")
+                mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {
@@ -111,6 +124,7 @@ class AuthControllerIntegrationTest {
                                 "password": "wrongpassword"
                             }
                             """))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error.message").value("Invalid password"));
     }
 }

@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.strategy;
 
+import com.github.k2ocabhinav.ubercloneapp.configs.FareConfig;
 import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.RideFareSurgePricingFareCalculationStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.RiderFareDefaultRideFareCalculationStrategy;
@@ -21,16 +22,21 @@ class RideStrategyManagerTest {
     @Mock
     private DistanceService distanceService;
 
+    private FareConfig fareConfig;
     private RideStrategyManagerTestWrapper strategyManager;
 
     @BeforeEach
     void setUp() {
+        fareConfig = new FareConfig();
+        fareConfig.setSurgeStartHour(18);
+        fareConfig.setSurgeEndHour(21);
+        
         RiderFareDefaultRideFareCalculationStrategy defaultFareStrategy = 
-                new RiderFareDefaultRideFareCalculationStrategy(distanceService);
+                new RiderFareDefaultRideFareCalculationStrategy(distanceService, fareConfig);
         RideFareSurgePricingFareCalculationStrategy surgePricingStrategy = 
-                new RideFareSurgePricingFareCalculationStrategy(distanceService);
+                new RideFareSurgePricingFareCalculationStrategy(distanceService, fareConfig);
         strategyManager = new RideStrategyManagerTestWrapper(
-                defaultFareStrategy, surgePricingStrategy);
+                defaultFareStrategy, surgePricingStrategy, fareConfig);
     }
 
     @Test
@@ -76,18 +82,21 @@ class RideStrategyManagerTest {
     static class RideStrategyManagerTestWrapper {
         private final RiderFareDefaultRideFareCalculationStrategy defaultFareStrategy;
         private final RideFareSurgePricingFareCalculationStrategy surgePricingStrategy;
+        private final FareConfig fareConfig;
 
         RideStrategyManagerTestWrapper(
                 RiderFareDefaultRideFareCalculationStrategy defaultFareStrategy,
-                RideFareSurgePricingFareCalculationStrategy surgePricingStrategy) {
+                RideFareSurgePricingFareCalculationStrategy surgePricingStrategy,
+                FareConfig fareConfig) {
             this.defaultFareStrategy = defaultFareStrategy;
             this.surgePricingStrategy = surgePricingStrategy;
+            this.fareConfig = fareConfig;
         }
 
         public RideFareCalculationStrategy fareCalculationStrategy(LocalDateTime dateTime) {
             java.time.LocalTime time = dateTime.toLocalTime();
-            java.time.LocalTime surgeStart = java.time.LocalTime.of(18, 0);
-            java.time.LocalTime surgeEnd = java.time.LocalTime.of(21, 0);
+            java.time.LocalTime surgeStart = java.time.LocalTime.of((int) fareConfig.getSurgeStartHour(), 0);
+            java.time.LocalTime surgeEnd = java.time.LocalTime.of((int) fareConfig.getSurgeEndHour(), 0);
             boolean isSurgeTime = time.isAfter(surgeStart) && time.isBefore(surgeEnd);
             if (isSurgeTime) {
                 return surgePricingStrategy;

@@ -10,6 +10,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
+import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
 import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
@@ -19,6 +20,7 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.RideStrategyManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +28,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +69,15 @@ class RiderServiceImplTest {
 
     @Mock
     private DriverMatchingStrategy driverMatchingStrategy;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
+    private UserPrincipal userPrincipal;
 
     private RiderServiceImpl riderService;
 
@@ -120,10 +134,23 @@ class RiderServiceImplTest {
                 .build();
     }
 
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void mockAuthenticatedRider() {
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(userPrincipal);
+        when(userPrincipal.getUserId()).thenReturn(101L);
+        when(riderRepository.findByUserId(101L)).thenReturn(Optional.of(testRider));
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     @DisplayName("Request ride should create ride request with fare and return")
     void requestRide_ShouldCreateRideRequestWithFare() {
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
+        mockAuthenticatedRider();
         when(modelMapper.map(testRideRequestDto, RideRequest.class)).thenReturn(testRideRequest);
         when(rideStrategyManager.rideFareCalculationStrategy()).thenReturn(fareCalculationStrategy);
         when(fareCalculationStrategy.calculateFare(testRideRequest)).thenReturn(150.0);
@@ -142,7 +169,7 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Cancel ride by owner should cancel and make driver available")
     void cancelRide_ByOwner_ShouldCancelAndMakeDriverAvailable() {
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
+        mockAuthenticatedRider();
         when(rideService.getRideById(1L)).thenReturn(testRide);
         when(rideService.updateRideStatus(testRide, RideStatus.CANCELLED)).thenReturn(testRide);
         when(modelMapper.map(testRide, RideDto.class)).thenReturn(new RideDto());
@@ -157,10 +184,10 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Cancel ride by non-owner should throw exception")
     void cancelRide_ByNonOwner_ShouldThrowException() {
+        mockAuthenticatedRider();
         Rider otherRider = Rider.builder().id(99L).build();
         testRide.setRider(otherRider);
 
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getRideById(1L)).thenReturn(testRide);
 
         assertThatThrownBy(() -> riderService.cancelRide(1L))
@@ -171,9 +198,9 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Cancel ride with invalid status should throw exception")
     void cancelRide_WithInvalidStatus_ShouldThrowException() {
+        mockAuthenticatedRider();
         testRide.setRideStatus(RideStatus.ONGOING);
 
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getRideById(1L)).thenReturn(testRide);
 
         assertThatThrownBy(() -> riderService.cancelRide(1L))
@@ -184,9 +211,9 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Rate driver for ended ride should return driver dto")
     void rateDriver_ForEndedRide_ShouldReturnDriverDto() {
+        mockAuthenticatedRider();
         testRide.setRideStatus(RideStatus.ENDED);
 
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getRideById(1L)).thenReturn(testRide);
         when(ratingService.rateDriver(testRide, 5)).thenReturn(new DriverDto());
 
@@ -199,9 +226,9 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Rate driver for non-ended ride should throw exception")
     void rateDriver_ForNonEndedRide_ShouldThrowException() {
+        mockAuthenticatedRider();
         testRide.setRideStatus(RideStatus.ONGOING);
 
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getRideById(1L)).thenReturn(testRide);
 
         assertThatThrownBy(() -> riderService.rateDriver(1L, 5))
@@ -212,11 +239,11 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Rate driver by non-owner should throw exception")
     void rateDriver_ByNonOwner_ShouldThrowException() {
+        mockAuthenticatedRider();
         Rider otherRider = Rider.builder().id(99L).build();
         testRide.setRider(otherRider);
         testRide.setRideStatus(RideStatus.ENDED);
 
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getRideById(1L)).thenReturn(testRide);
 
         assertThatThrownBy(() -> riderService.rateDriver(1L, 5))
@@ -227,7 +254,7 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Get my profile should return rider dto")
     void getMyProfile_ShouldReturnRiderDto() {
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
+        mockAuthenticatedRider();
         when(modelMapper.map(testRider, RiderDto.class)).thenReturn(new RiderDto());
 
         RiderDto result = riderService.getMyProfile();
@@ -238,8 +265,8 @@ class RiderServiceImplTest {
     @Test
     @DisplayName("Get all my rides should return paginated rides")
     void getAllMyRides_ShouldReturnPaginatedRides() {
+        mockAuthenticatedRider();
         Page<Ride> ridePage = new PageImpl<>(List.of(testRide));
-        when(riderRepository.findById(1L)).thenReturn(Optional.of(testRider));
         when(rideService.getAllRidesOfRider(testRider, PageRequest.of(0, 10))).thenReturn(ridePage);
 
         Page<RideDto> result = riderService.getAllMyRides(PageRequest.of(0, 10));

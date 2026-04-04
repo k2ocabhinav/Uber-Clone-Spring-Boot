@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.controllers;
 
+import com.github.k2ocabhinav.ubercloneapp.dto.AuthResponseDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.DriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.OnboardDriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.SignupDto;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,6 +23,11 @@ public class AuthController {
     @PostMapping("/signup")
     ResponseEntity<UserDto> signUp(@RequestBody SignupDto signupDto) {
         return new ResponseEntity<>(authService.signup(signupDto), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    ResponseEntity<AuthResponseDto> login(@RequestBody Map<String, String> credentials) {
+        return ResponseEntity.ok(authService.login(credentials.get("email"), credentials.get("password")));
     }
 
     @PostMapping("/onBoardNewDriver/{userId}")

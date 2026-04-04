@@ -24,6 +24,7 @@ public class Wallet {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     private User user;
 
+    @Builder.Default
     private Double balance = 0.0;
 
     @ToString.Exclude

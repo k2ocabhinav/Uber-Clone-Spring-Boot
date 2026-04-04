@@ -1,5 +1,6 @@
 package com.github.k2ocabhinav.ubercloneapp.services.impl;
 
+import com.github.k2ocabhinav.ubercloneapp.dto.AuthResponseDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.DriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.SignupDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.UserDto;
@@ -9,6 +10,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.Role;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.UserRepository;
+import com.github.k2ocabhinav.ubercloneapp.security.JwtTokenProvider;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
 import com.github.k2ocabhinav.ubercloneapp.services.WalletService;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -47,12 +50,18 @@ class AuthServiceImplTest {
     @Mock
     private DriverService driverService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
+
     private AuthServiceImpl authService;
 
     @BeforeEach
     void setUp() {
         authService = new AuthServiceImpl(
-                userRepository, modelMapper, riderService, walletService, driverService);
+                userRepository, modelMapper, riderService, walletService, driverService, passwordEncoder, jwtTokenProvider);
     }
 
     @Test
@@ -73,6 +82,7 @@ class AuthServiceImplTest {
 
         when(userRepository.findByEmail(signupDto.getEmail())).thenReturn(Optional.empty());
         when(modelMapper.map(signupDto, User.class)).thenReturn(mappedUser);
+        when(passwordEncoder.encode(signupDto.getPassword())).thenReturn("encoded-password");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             user.setId(1L);
@@ -86,6 +96,8 @@ class AuthServiceImplTest {
         verify(userRepository).save(any(User.class));
         verify(riderService).createNewRider(any(User.class));
         verify(walletService).createNewWallet(any(User.class));
+        assertThat(mappedUser.getPassword()).isEqualTo("encoded-password");
+        assertThat(mappedUser.getActive()).isTrue();
     }
 
     @Test
@@ -104,14 +116,46 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Login should return empty string (not implemented)")
-    void login_WithValidCredentials_ShouldReturnEmptyString() {
+    @DisplayName("Login with valid credentials should return auth response")
+    void login_WithValidCredentials_ShouldReturnAuthResponse() {
         String email = "user@test.com";
         String password = "password123";
+        User user = User.builder()
+                .id(1L)
+                .email(email)
+                .password("encoded-password")
+                .roles(Set.of(Role.RIDER))
+                .build();
 
-        String result = authService.login(email, password);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, user.getPassword())).thenReturn(true);
+        when(jwtTokenProvider.generateToken(email, 1L, Role.RIDER.name())).thenReturn("jwt-token");
 
-        assertThat(result).isEmpty();
+        AuthResponseDto result = authService.login(email, password);
+
+        assertThat(result.getToken()).isEqualTo("jwt-token");
+        assertThat(result.getUserId()).isEqualTo(1L);
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getRole()).isEqualTo(Role.RIDER.name());
+    }
+
+    @Test
+    @DisplayName("Login with invalid password should throw RuntimeConflictException")
+    void login_WithInvalidPassword_ShouldThrowException() {
+        String email = "user@test.com";
+        User user = User.builder()
+                .id(1L)
+                .email(email)
+                .password("encoded-password")
+                .roles(Set.of(Role.RIDER))
+                .build();
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong-password", user.getPassword())).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(email, "wrong-password"))
+                .isInstanceOf(RuntimeConflictException.class)
+                .hasMessageContaining("Invalid password");
     }
 
     @Test
