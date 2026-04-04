@@ -3,14 +3,10 @@ package com.github.k2ocabhinav.ubercloneapp.testdata;
 import com.github.k2ocabhinav.ubercloneapp.entities.Wallet;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WalletTestBuilder {
     private Long id = 1L;
     private User user;
     private Double balance = 0.0;
-    private List<Object> transactions = new ArrayList<>();
 
     public WalletTestBuilder withId(Long id) {
         this.id = id;

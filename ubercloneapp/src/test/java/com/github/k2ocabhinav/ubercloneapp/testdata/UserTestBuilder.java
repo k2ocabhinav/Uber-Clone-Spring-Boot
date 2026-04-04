@@ -7,26 +7,16 @@ import java.util.Set;
 
 public class UserTestBuilder {
     private Long id = 1L;
-    private String email = "test@example.com";
-    private String password = "password123";
     private String firstName = "Test";
     private String lastName = "User";
+    private String email = "test@example.com";
+    private String password = "password123";
     private String phoneNumber = "+1234567890";
-    private Set<Role> roles = Set.of(Role.RIDER);
     private Boolean active = true;
+    private Set<Role> roles = Set.of(Role.RIDER);
 
     public UserTestBuilder withId(Long id) {
         this.id = id;
-        return this;
-    }
-
-    public UserTestBuilder withEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public UserTestBuilder withPassword(String password) {
-        this.password = password;
         return this;
     }
 
@@ -40,6 +30,23 @@ public class UserTestBuilder {
         return this;
     }
 
+    public UserTestBuilder withName(String name) {
+        String[] parts = name.split(" ", 2);
+        this.firstName = parts[0];
+        this.lastName = parts.length > 1 ? parts[1] : "";
+        return this;
+    }
+
+    public UserTestBuilder withEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public UserTestBuilder withPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
     public UserTestBuilder withRoles(Set<Role> roles) {
         this.roles = roles;
         return this;
@@ -50,26 +57,16 @@ public class UserTestBuilder {
         return this;
     }
 
-    public UserTestBuilder active() {
-        this.active = true;
-        return this;
-    }
-
-    public UserTestBuilder inactive() {
-        this.active = false;
-        return this;
-    }
-
     public User build() {
         return User.builder()
                 .id(id)
-                .email(email)
-                .password(password)
                 .firstName(firstName)
                 .lastName(lastName)
+                .email(email)
+                .password(password)
                 .phoneNumber(phoneNumber)
-                .roles(roles)
                 .active(active)
+                .roles(roles)
                 .build();
     }
 

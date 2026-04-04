@@ -84,7 +84,7 @@ public class RideRequestTestBuilder {
         return aRideRequest().withStatus(RideRequestStatus.PENDING);
     }
 
-    public static RideRequestTestBuilder anAcceptedRideRequest() {
-        return aRideRequest().withStatus(RideRequestStatus.ACCEPTED);
+    public static RideRequestTestBuilder aConfirmedRideRequest() {
+        return aRideRequest().withStatus(RideRequestStatus.CONFIRMED);
     }
 }

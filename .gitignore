@@ -1,0 +1,6 @@
+# AI agent instruction files - never commit these
+CLAUDE.md
+agents.md
+.claude/
+*.anthropic*
+ai_instructions/
