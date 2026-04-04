@@ -15,14 +15,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(indexes = {
-        @Index(name = "idx_driver_vehicle_id", columnList = "vehicleId")
+        @Index(name = "idx_driver_vehicle_id", columnList = "vehicleId"),
+        @Index(name = "idx_driver_available", columnList = "available"),
+        @Index(name = "idx_driver_rating", columnList = "rating")
 })
 public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -36,5 +39,19 @@ public class Driver {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Version
+    private Long version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Driver that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }
