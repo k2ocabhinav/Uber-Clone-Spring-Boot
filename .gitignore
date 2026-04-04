@@ -1,10 +1,11 @@
-# Local instruction and tooling files - do not commit unless explicitly needed
-CLAUDE.md
-agents.md
+# Local tooling state - do not commit
 .claude/
+.codex/
+.agents/
+.claude-flow/
 *.anthropic*
 ai_instructions/
-.agents/
-.codex/
+
+# OS / IDE
 .DS_Store
 .vscode/

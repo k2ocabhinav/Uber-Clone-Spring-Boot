@@ -1,28 +1,31 @@
-# Stabilization and Release Instructions
+# Implementation & Release Instructions
 
-This document replaces the older handoff note that referenced unfinished JWT work on `feature/complete-backend-jwt-auth`. The repository has moved beyond that point, and the current focus is build stabilization, test reliability, and release branch hygiene.
+This document describes the current project state and release processes.
 
-## Current Status
+## Current Status (as of 2026-04-05)
 
-- Working branch for the latest hardening pass: a dedicated stabilization branch
-- Historical feature branch with large recent changes: `feature/production-ready`
-- Verified locally on 2026-04-05:
-  - `cd ubercloneapp && ./mvnw test`
-  - `cd ubercloneapp && ./mvnw spring-boot:run`
+The codebase is stabilized and verified:
 
-At the time of this update, the local Maven test suite passes and the application starts successfully against PostgreSQL/PostGIS.
+- `cd ubercloneapp && ./mvnw test` — passes
+- `cd ubercloneapp && ./mvnw spring-boot:run` — boots successfully against PostgreSQL/PostGIS
+- Baseline tagged as `v1.0.0` on `main`
 
-## What Was Stabilized
+### What's Implemented
 
-The latest pass focused on making the recently expanded codebase consistent and testable:
-
-- Completed JWT-backed login flow and controller endpoint wiring
-- Replaced hardcoded rider and driver lookups with `findByUserId(...)` logic
-- Repaired ModelMapper edge cases for user names and geometry conversions
-- Updated test configuration to use the `test` profile cleanly
-- Added test-only request headers for authenticated controller integration tests
-- Realigned `data.sql` with the current schema and enum persistence behavior
-- Verified the app boots with the default profile and seeded data
+- Full ride lifecycle (request → accept → OTP start → end → payment)
+- JWT-based login and stateless Spring Security
+- Strategy-based fare calculation (default + surge pricing 6-9 PM)
+- Strategy-based driver matching (nearest driver vs highest-rated)
+- PostGIS geospatial queries for nearby driver search
+- OSRM distance integration for fare calculation
+- Cash + Wallet payment strategies
+- Admin dashboard (stats, revenue, driver approval, user management)
+- Rating system (rider ↔ driver)
+- Redis cache support (optional)
+- Actuator health indicators
+- Comprehensive test suite (unit + service + controller integration)
+- Database indexes and fetch optimizations on all entities
+- Request logging via AOP aspect
 
 ## Verification Commands
 
@@ -43,59 +46,30 @@ Environment assumptions:
 - Password: `user`
 - Optional Redis on `localhost:6379`
 
-## Branch Roles
+## Branch Model
 
-To keep release management understandable, use each branch for one purpose:
+See [`docs/BRANCHING_STRATEGY.md`](BRANCHING_STRATEGY.md) for the full workflow.
 
-- `main`
-  - ongoing integration branch
-- `feature/*`
-  - implementation and exploratory branches
-- `feature/production-ready`
-  - keep as a historical release-candidate or integration branch until all needed work is promoted elsewhere
-- `release/final-build-stabilization` or another neutral stabilization branch
-  - hardening, documentation, and final verification
-- `production`
-  - clean promotion-only branch for the best validated build
+Summary:
 
-## Recommendation for the Existing `feature/production-ready` Branch
+- `main` — primary branch, always deployable
+- `feature/<name>` — feature branches from `main`
+- `production` — promotion-only, points to latest tagged release
+- Tags: `v1.0.0`, `v1.1.0`, etc. on `main`
 
-Do not delete it immediately. It already contains a large amount of implementation work and serves as a useful audit trail.
-
-Recommended handling:
-
-1. Finish stabilization on a dedicated stabilization branch.
-2. Commit the validated changes there.
-3. Create a dedicated `production` branch from that clean verified commit.
-4. Treat `feature/production-ready` as a release-candidate history branch, not the final source of truth.
-5. After the team is comfortable with the new flow, stop using `feature/production-ready` as a production signal.
-
-## Promotion Workflow
-
-Use this workflow for future releases:
-
-1. Implement or stabilize work on `feature/*` or a dedicated stabilization branch.
-2. Run `./mvnw test`.
-3. Run a local smoke start with `./mvnw spring-boot:run`.
-4. Merge or cherry-pick only the validated commit set into `production`.
-5. Tag the release from `production`.
-6. Protect `production` in the remote host so it is never used for active feature work.
-
-## Testing Notes for Future Agents
+## Testing Notes for Agents
 
 - Integration tests rely on the test headers in `TestSecurityConfig`:
   - `X-Test-User-Id`
   - `X-Test-Email`
   - `X-Test-Role`
-- Controller responses are usually wrapped by `ApiResponse<?>`, so assertions should target `$.data` or `$.error`.
-- `UserPrincipal.getUserId()` is a `User.id`; always map from user to rider or driver through repository methods such as `findByUserId(...)`.
+- Controller responses are wrapped by `ApiResponse<?>`, so assertions should target `$.data` or `$.error`.
+- `UserPrincipal.getUserId()` is a `User.id`; map from user to rider or driver through `findByUserId(...)`.
 - `data.sql` is loaded only for the default profile and must stay aligned with the live schema.
 
-## Remaining Operational Improvements
+## Remaining Improvements
 
-The build is now in a much better place, but a few release-engineering improvements are still worth doing:
-
-- Add CI gates that run `./mvnw test` on every branch intended for promotion
-- Add branch protection for `production`
-- Decide whether Redis should be mandatory for local development or remain optional
-- Add a small smoke test or health-check job for startup verification against PostgreSQL/PostGIS
+- Add CI gates (GitHub Actions) that run `./mvnw test` on every PR
+- Add branch protection rules for `main` and `production`
+- Decide whether Redis should be mandatory or remain optional for local dev
+- Add startup smoke test / health-check job
