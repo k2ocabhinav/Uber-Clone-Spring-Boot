@@ -15,9 +15,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Table(indexes = {
         @Index(name = "idx_ride_rider", columnList = "rider_id"),
-        @Index(name = "idx_ride_driver", columnList = "driver_id")
+        @Index(name = "idx_ride_driver", columnList = "driver_id"),
+        @Index(name = "idx_ride_status", columnList = "rideStatus"),
+        @Index(name = "idx_ride_created", columnList = "createdTime")
 })
 public class Ride{
 
@@ -36,9 +39,11 @@ public class Ride{
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Rider rider;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Driver driver;
 
@@ -51,4 +56,19 @@ public class Ride{
     private Double fare;
 
     private String otp;
+
+    @Version
+    private Long version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ride that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
