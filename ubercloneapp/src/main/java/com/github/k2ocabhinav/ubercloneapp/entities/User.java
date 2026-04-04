@@ -38,4 +38,19 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @Version
+    private Long version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }
