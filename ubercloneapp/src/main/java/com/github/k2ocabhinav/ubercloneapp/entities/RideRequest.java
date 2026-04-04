@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
 @Table(
         indexes = {
                 @Index(name = "idx_ride_request_rider", columnList = "rider_id"),
-                @Index(name = "idx_ride_request_status", columnList = "rideRequestStatus")
+                @Index(name = "idx_ride_request_status", columnList = "rideRequestStatus"),
+                @Index(name = "idx_ride_request_scheduled", columnList = "scheduledTime")
         }
 )
 public class RideRequest {
@@ -37,6 +38,8 @@ public class RideRequest {
     @CreationTimestamp
     private LocalDateTime requestedTime;
 
+    private LocalDateTime scheduledTime;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Rider rider;
@@ -47,7 +50,8 @@ public class RideRequest {
     @Enumerated(EnumType.STRING)
     private RideRequestStatus rideRequestStatus;
 
-    private Double fare;
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal fare;
 
     @Version
     private Long version;
