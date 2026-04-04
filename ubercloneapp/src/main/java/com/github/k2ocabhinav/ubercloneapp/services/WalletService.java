@@ -14,7 +14,7 @@ public interface WalletService {
                                  String transactionId, Ride ride,
                                  TransactionMethod transactionMethod);
 
-    void withdrawAllMyMoneyFromWallet();
+    void withdrawAllMyMoneyFromWallet(User user);
 
     Wallet findWalletById(Long walletId);
 

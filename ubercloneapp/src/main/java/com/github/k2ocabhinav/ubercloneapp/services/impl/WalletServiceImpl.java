@@ -68,8 +68,27 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public void withdrawAllMyMoneyFromWallet() {
+    @Transactional
+    public void withdrawAllMyMoneyFromWallet(User user) {
+        Wallet wallet = findByUser(user);
+        
+        if (wallet.getBalance() <= 0) {
+            return;
+        }
+        
+        Double amount = wallet.getBalance();
+        wallet.setBalance(0.0);
 
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .transactionId(java.util.UUID.randomUUID().toString())
+                .wallet(wallet)
+                .transactionType(TransactionType.DEBIT)
+                .transactionMethod(TransactionMethod.WALLET)
+                .amount(amount)
+                .build();
+
+        walletTransactionService.createNewWalletTransaction(walletTransaction);
+        walletRepository.save(wallet);
     }
 
     @Override
