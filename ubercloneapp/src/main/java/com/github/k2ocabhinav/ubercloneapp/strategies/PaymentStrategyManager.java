@@ -1,6 +1,7 @@
 package com.github.k2ocabhinav.ubercloneapp.strategies;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentMethod;
+import com.github.k2ocabhinav.ubercloneapp.exceptions.RuntimeConflictException;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.CashPaymentStrategy;
 import com.github.k2ocabhinav.ubercloneapp.strategies.impl.WalletPaymentStrategy;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class PaymentStrategyManager {
         return switch (paymentMethod) {
             case WALLET -> walletPaymentStrategy;
             case CASH -> cashPaymentStrategy;
+            default -> throw new RuntimeConflictException("Unsupported payment method: " + paymentMethod);
         };
     }
 }
