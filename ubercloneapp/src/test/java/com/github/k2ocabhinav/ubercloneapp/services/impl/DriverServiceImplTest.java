@@ -61,6 +61,9 @@ class DriverServiceImplTest {
     private RatingService ratingService;
 
     @Mock
+    private com.github.k2ocabhinav.ubercloneapp.services.DriverEarningsService driverEarningsService;
+
+    @Mock
     private SecurityContext securityContext;
 
     @Mock
@@ -78,7 +81,7 @@ class DriverServiceImplTest {
     @BeforeEach
     void setUp() {
         driverService = new DriverServiceImpl(
-                rideRequestService, driverRepository, rideService, modelMapper, paymentService, ratingService);
+                rideRequestService, driverRepository, rideService, modelMapper, paymentService, ratingService, driverEarningsService);
 
         testDriver = Driver.builder()
                 .id(1L)

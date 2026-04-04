@@ -33,6 +33,7 @@ public class DriverServiceImpl implements DriverService {
     private final ModelMapper modelMapper;
     private final PaymentService paymentService;
     private final RatingService ratingService;
+    private final DriverEarningsService driverEarningsService;
 
     @Override
     @Transactional
@@ -121,6 +122,9 @@ public class DriverServiceImpl implements DriverService {
         updateDriverAvailability(driver, true);
 
         paymentService.processPayment(ride);
+        
+        // Auto-create earning record for the driver
+        driverEarningsService.createEarningRecord(ride);
 
         return modelMapper.map(savedRide, RideDto.class);
     }

@@ -6,6 +6,7 @@ import com.github.k2ocabhinav.ubercloneapp.dto.admin.PendingDriverDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.admin.RevenueReportDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;
 import com.github.k2ocabhinav.ubercloneapp.services.AdminService;
+import com.github.k2ocabhinav.ubercloneapp.services.PayoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final PayoutService payoutService;
 
     @GetMapping("/stats/dashboard")
     @Operation(summary = "Get dashboard overview")
@@ -96,5 +98,34 @@ public class AdminController {
     public ResponseEntity<Void> activateUser(@PathVariable Long id) {
         adminService.activateUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/payouts/pending")
+    @Operation(summary = "Get pending driver payouts")
+    public ResponseEntity<Page<com.github.k2ocabhinav.ubercloneapp.dto.PayoutRequestDto>> getPendingPayouts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "requestedAt"));
+        return ResponseEntity.ok(payoutService.getPendingPayouts(pageRequest));
+    }
+
+    @PostMapping("/payouts/{id}/approve")
+    @Operation(summary = "Approve a payout request")
+    public ResponseEntity<com.github.k2ocabhinav.ubercloneapp.dto.PayoutRequestDto> approvePayout(
+            @PathVariable Long id, @RequestBody(required = false) String adminNote) {
+        return ResponseEntity.ok(payoutService.approvePayout(id, adminNote));
+    }
+
+    @PostMapping("/payouts/{id}/reject")
+    @Operation(summary = "Reject a payout request")
+    public ResponseEntity<com.github.k2ocabhinav.ubercloneapp.dto.PayoutRequestDto> rejectPayout(
+            @PathVariable Long id, @RequestBody String adminNote) {
+        return ResponseEntity.ok(payoutService.rejectPayout(id, adminNote));
+    }
+
+    @PostMapping("/payouts/{id}/process")
+    @Operation(summary = "Process an approved payout request")
+    public ResponseEntity<com.github.k2ocabhinav.ubercloneapp.dto.PayoutRequestDto> processPayout(@PathVariable Long id) {
+        return ResponseEntity.ok(payoutService.processPayout(id));
     }
 }
