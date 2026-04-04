@@ -5,7 +5,7 @@ Backend for a ride-sharing application built with Spring Boot 3.3.1, Java 22, Po
 ## Current State
 
 - This repository is still under active development and contains both legacy work and recent stabilization changes.
-- The latest hardening work was continued on `codex/final-build-stabilization` from the existing `feature/production-ready` branch.
+- The latest hardening work was continued on a dedicated stabilization branch from the existing `feature/production-ready` branch.
 - Verified locally on 2026-04-05:
   - `cd ubercloneapp && ./mvnw test`
   - `cd ubercloneapp && ./mvnw spring-boot:run`
@@ -26,7 +26,7 @@ Backend for a ride-sharing application built with Spring Boot 3.3.1, Java 22, Po
 
 - `ubercloneapp/` - Maven project root and application source
 - `docs/` - implementation notes and release workflow documentation
-- `.claude/` - local agent orchestration commands, hook docs, and helper scripts
+- `.claude/` - local workflow tooling and helper scripts
 
 ## Prerequisites
 
@@ -107,7 +107,7 @@ Use a clear promotion path instead of treating a feature branch as production:
 
 - `main` - long-lived integration branch
 - `feature/*` - feature and exploratory work, including the existing `feature/production-ready`
-- `codex/final-build-stabilization` - hardening and verification branch
+- `release/final-build-stabilization` or another neutral stabilization branch - hardening and verification branch
 - `production` - promotion-only branch that should always contain the cleanest releasable state
 
 Recommended flow:
@@ -121,4 +121,4 @@ Recommended flow:
 
 - `AGENTS.md` - repository guidance for coding agents
 - `docs/IMPLEMENTATION-INSTRUCTIONS.md` - stabilization and release notes
-- `.claude/...` - local agent command and helper documentation
+- `.claude/...` - local workflow command and helper documentation

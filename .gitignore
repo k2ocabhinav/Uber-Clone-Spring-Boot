@@ -1,4 +1,4 @@
-# AI agent instruction files - never commit these
+# Local instruction and tooling files - do not commit unless explicitly needed
 CLAUDE.md
 agents.md
 .claude/
@@ -6,3 +6,5 @@ agents.md
 ai_instructions/
 .agents/
 .codex/
+.DS_Store
+.vscode/

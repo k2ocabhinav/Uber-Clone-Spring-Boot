@@ -4,7 +4,7 @@ This document replaces the older handoff note that referenced unfinished JWT wor
 
 ## Current Status
 
-- Working branch for the latest hardening pass: `codex/final-build-stabilization`
+- Working branch for the latest hardening pass: a dedicated stabilization branch
 - Historical feature branch with large recent changes: `feature/production-ready`
 - Verified locally on 2026-04-05:
   - `cd ubercloneapp && ./mvnw test`
@@ -53,7 +53,7 @@ To keep release management understandable, use each branch for one purpose:
   - implementation and exploratory branches
 - `feature/production-ready`
   - keep as a historical release-candidate or integration branch until all needed work is promoted elsewhere
-- `codex/final-build-stabilization`
+- `release/final-build-stabilization` or another neutral stabilization branch
   - hardening, documentation, and final verification
 - `production`
   - clean promotion-only branch for the best validated build
@@ -64,7 +64,7 @@ Do not delete it immediately. It already contains a large amount of implementati
 
 Recommended handling:
 
-1. Finish stabilization on `codex/final-build-stabilization`.
+1. Finish stabilization on a dedicated stabilization branch.
 2. Commit the validated changes there.
 3. Create a dedicated `production` branch from that clean verified commit.
 4. Treat `feature/production-ready` as a release-candidate history branch, not the final source of truth.
@@ -74,7 +74,7 @@ Recommended handling:
 
 Use this workflow for future releases:
 
-1. Implement or stabilize work on `feature/*` or `codex/final-build-stabilization`.
+1. Implement or stabilize work on `feature/*` or a dedicated stabilization branch.
 2. Run `./mvnw test`.
 3. Run a local smoke start with `./mvnw spring-boot:run`.
 4. Merge or cherry-pick only the validated commit set into `production`.
