@@ -10,11 +10,13 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.DriverRepository;
+import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,8 +155,9 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public Driver getCurrentDriver() {
-        return driverRepository.findById(2L).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " +
-                "id "+2));
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return driverRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " +
+                "id "+ principal.getUserId()));
     }
 
     @Override
