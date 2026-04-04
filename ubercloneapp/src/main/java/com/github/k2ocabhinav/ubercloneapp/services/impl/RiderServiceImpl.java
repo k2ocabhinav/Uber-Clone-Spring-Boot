@@ -10,26 +10,26 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
+import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
 import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
 import com.github.k2ocabhinav.ubercloneapp.strategies.RideStrategyManager;
-import jakarta.transaction.Transactional;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Builder
 public class RiderServiceImpl implements RiderService {
 
     private final ModelMapper modelMapper;
@@ -119,9 +119,9 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public Rider getCurrentRider() {
-//        TODO : implement Spring security
-        return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException(
-                "Rider not found with id: "+1
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return riderRepository.findById(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(
+                "Rider not found with id: "+ principal.getUserId()
         ));
     }
 }
