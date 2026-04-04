@@ -32,6 +32,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final PayoutService payoutService;
+    private final com.github.k2ocabhinav.ubercloneapp.services.ScheduledRideService scheduledRideService;
 
     @GetMapping("/stats/dashboard")
     @Operation(summary = "Get dashboard overview")
@@ -127,5 +128,14 @@ public class AdminController {
     @Operation(summary = "Process an approved payout request")
     public ResponseEntity<com.github.k2ocabhinav.ubercloneapp.dto.PayoutRequestDto> processPayout(@PathVariable Long id) {
         return ResponseEntity.ok(payoutService.processPayout(id));
+    }
+
+    @GetMapping("/scheduled-rides")
+    @Operation(summary = "Get all platform-wide scheduled rides")
+    public ResponseEntity<Page<com.github.k2ocabhinav.ubercloneapp.dto.ScheduledRideDto>> getAllScheduledRides(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return ResponseEntity.ok(scheduledRideService.getAllScheduledRides(pageRequest));
     }
 }
