@@ -56,7 +56,7 @@ public class RiderServiceImpl implements RiderService {
         String promoCode = rideRequestDto.getPromoCode();
         if (promoCode != null && !promoCode.isBlank()) {
             com.github.k2ocabhinav.ubercloneapp.dto.PromoCodeResultDto promoResult = 
-                promoCodeService.validateAndApplyPromo(promoCode, BigDecimal.valueOf(fare), rider.getId());
+                promoCodeService.validateAndApplyPromo(promoCode, rider.getUser(), BigDecimal.valueOf(fare));
             if (promoResult.isValid() && promoResult.getDiscountAmount() != null) {
                 rideRequest.setPromoCode(promoCode);
                 rideRequest.setDiscountAmount(promoResult.getDiscountAmount().doubleValue());

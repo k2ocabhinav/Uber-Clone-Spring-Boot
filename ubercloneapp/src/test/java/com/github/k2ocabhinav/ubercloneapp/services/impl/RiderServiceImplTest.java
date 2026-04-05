@@ -12,6 +12,7 @@ import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
+import com.github.k2ocabhinav.ubercloneapp.services.PromoCodeService;
 import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
 import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrategy;
@@ -66,6 +67,9 @@ class RiderServiceImplTest {
     private RatingService ratingService;
 
     @Mock
+    private PromoCodeService promoCodeService;
+
+    @Mock
     private RideFareCalculationStrategy fareCalculationStrategy;
 
     @Mock
@@ -96,7 +100,8 @@ class RiderServiceImplTest {
                 riderRepository,
                 rideService,
                 driverService,
-                ratingService);
+                ratingService,
+                promoCodeService);
 
         User testUser = User.builder()
                 .id(1L)
@@ -164,11 +169,7 @@ class RiderServiceImplTest {
 
         assertThat(result).isNotNull();
         verify(rideRequestRepository).save(testRideRequest);
-<<<<<<< HEAD
         assertThat(testRideRequest.getFare()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
-=======
-        assertThat(testRideRequest.getFare()).isEqualTo(BigDecimal.valueOf(150.0));
->>>>>>> 269d8a7 (fix: update tests to use BigDecimal for fare)
     }
 
     @Test
