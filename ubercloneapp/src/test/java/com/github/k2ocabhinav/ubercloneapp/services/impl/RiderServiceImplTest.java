@@ -32,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,7 +119,7 @@ class RiderServiceImplTest {
                 .id(1L)
                 .rideRequestStatus(RideRequestStatus.PENDING)
                 .rider(testRider)
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .build();
 
         Driver testDriver = Driver.builder()
@@ -163,7 +164,7 @@ class RiderServiceImplTest {
 
         assertThat(result).isNotNull();
         verify(rideRequestRepository).save(testRideRequest);
-        assertThat(testRideRequest.getFare()).isEqualTo(150.0);
+        assertThat(testRideRequest.getFare()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
     }
 
     @Test

@@ -30,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -93,7 +94,7 @@ class DriverServiceImplTest {
         testRideRequest = RideRequest.builder()
                 .id(1L)
                 .rideRequestStatus(RideRequestStatus.PENDING)
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .build();
 
         testRide = Ride.builder()
