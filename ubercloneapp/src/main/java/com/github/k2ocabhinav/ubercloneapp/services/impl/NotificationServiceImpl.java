@@ -9,6 +9,8 @@ import com.github.k2ocabhinav.ubercloneapp.repositories.NotificationRepository;
 import com.github.k2ocabhinav.ubercloneapp.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .stream()
                 .map(n -> modelMapper.map(n, NotificationDto.class))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NotificationDto> getUserNotifications(User user, Pageable pageable) {
+        return notificationRepository.findByUser(user, pageable)
+                .map(n -> modelMapper.map(n, NotificationDto.class));
     }
 
     @Override

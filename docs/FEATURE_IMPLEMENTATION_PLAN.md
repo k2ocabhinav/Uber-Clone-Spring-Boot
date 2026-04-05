@@ -222,13 +222,13 @@ public class Notification {
 
 ### 4.7 Acceptance Criteria
 
-- [ ] `./mvnw test` passes (all tests, old + new)
-- [ ] WebSocket endpoint at `/ws` is reachable
-- [ ] All 6 ride lifecycle events are published from existing services
-- [ ] Events create persistent Notification records
-- [ ] REST API for notification history, mark-read, unread-count works
-- [ ] All endpoints have Swagger docs
-- [ ] No TODO comments
+- [x] `./mvnw test` passes (all tests, old + new)
+- [x] WebSocket endpoint at `/ws` is reachable
+- [x] All 6 ride lifecycle events are published from existing services
+- [x] Events create persistent Notification records
+- [x] REST API for notification history, mark-read, unread-count works
+- [x] All endpoints have Swagger docs
+- [x] No TODO comments
 
 ---
 

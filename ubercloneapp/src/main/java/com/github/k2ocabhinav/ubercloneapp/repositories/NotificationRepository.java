@@ -2,6 +2,8 @@ package com.github.k2ocabhinav.ubercloneapp.repositories;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.Notification;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +16,8 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     List<Notification> findByUserOrderByCreatedTimeDesc(User user);
+
+    Page<Notification> findByUser(User user, Pageable pageable);
 
     long countByUserAndReadFalse(User user);
 
