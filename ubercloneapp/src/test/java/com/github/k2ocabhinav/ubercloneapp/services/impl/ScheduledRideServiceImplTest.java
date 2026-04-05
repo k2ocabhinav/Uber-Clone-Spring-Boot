@@ -93,7 +93,7 @@ class ScheduledRideServiceImplTest {
             when(riderService.getCurrentRider()).thenReturn(testRider);
             when(modelMapper.map(requestDto, RideRequest.class)).thenReturn(testRideRequest);
             when(rideStrategyManager.rideFareCalculationStrategy()).thenReturn(fareCalculationStrategy);
-            when(fareCalculationStrategy.calculateFare(any())).thenReturn(new BigDecimal("150.00"));
+            when(fareCalculationStrategy.calculateFare(any())).thenReturn(150.0);
             when(rideRequestRepository.save(any(RideRequest.class))).thenReturn(testRideRequest);
             when(modelMapper.map(testRideRequest, ScheduledRideDto.class)).thenReturn(new ScheduledRideDto());
 
@@ -193,7 +193,7 @@ class ScheduledRideServiceImplTest {
             when(rideRequestRepository.findById(1L)).thenReturn(Optional.of(testRideRequest));
             when(riderService.getCurrentRider()).thenReturn(testRider);
             when(rideStrategyManager.rideFareCalculationStrategy()).thenReturn(fareCalculationStrategy);
-            when(fareCalculationStrategy.calculateFare(any())).thenReturn(new BigDecimal("180.00"));
+            when(fareCalculationStrategy.calculateFare(any())).thenReturn(180.0);
             when(rideRequestRepository.save(any(RideRequest.class))).thenReturn(testRideRequest);
             when(modelMapper.map(any(RideRequest.class), eq(ScheduledRideDto.class)))
                     .thenReturn(new ScheduledRideDto());

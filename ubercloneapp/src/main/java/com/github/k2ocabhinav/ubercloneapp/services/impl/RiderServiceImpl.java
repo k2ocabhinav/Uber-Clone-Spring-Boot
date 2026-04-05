@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -49,7 +50,7 @@ public class RiderServiceImpl implements RiderService {
         rideRequest.setRider(rider);
 
         Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(fare);
+        rideRequest.setFare(BigDecimal.valueOf(fare));
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
 
