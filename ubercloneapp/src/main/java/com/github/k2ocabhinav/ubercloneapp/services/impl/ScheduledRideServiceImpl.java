@@ -52,8 +52,8 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
         rideRequest.setRideRequestStatus(RideRequestStatus.SCHEDULED);
         rideRequest.setScheduledTime(scheduledTime);
 
-        BigDecimal fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(fare);
+        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
+        rideRequest.setFare(BigDecimal.valueOf(fare));
 
         RideRequest saved = rideRequestRepository.save(rideRequest);
         log.info("Scheduled ride created: id={}, scheduledTime={}", saved.getId(), scheduledTime);
@@ -81,8 +81,8 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
         RideRequest rideRequest = findOwnedScheduledRequest(rideRequestId);
         rideRequest.setScheduledTime(newScheduledTime);
 
-        BigDecimal fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(fare);
+        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
+        rideRequest.setFare(BigDecimal.valueOf(fare));
 
         RideRequest saved = rideRequestRepository.save(rideRequest);
         log.info("Scheduled ride rescheduled: id={}, newTime={}", rideRequestId, newScheduledTime);
