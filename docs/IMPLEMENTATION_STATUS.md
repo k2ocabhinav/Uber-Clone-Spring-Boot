@@ -27,7 +27,7 @@
 | 5 | Driver Earnings | `main` (merged) | Yes | Yes | Yes | Minor | Already merged |
 | 2 | Scheduled Rides | `feature/scheduled-rides` | **No** | Partial | **No** | None | **Blocked** |
 | 4 | Fare Estimation | `feature/fare-estimation-eta` | Yes (no impl) | **No** | Yes (no new tests) | None | **Blocked** |
-| 3 | Promo Discount | `feature/promo-discount-engine` | **No** | **No** | **No** | None | **Blocked** |
+| 3 | Promo Discount | `main` (merged) | Yes | Yes | Yes | None | Already merged |
 | 1 | Notifications | `feature/real-time-notifications` | Yes | Partial | Yes (no new tests) | **Major** | **Blocked** |
 
 ---
@@ -148,14 +148,25 @@
 
 ## 5. Feature 3 — Promo Code & Discount Engine
 
-**Branch:** `feature/promo-discount-engine`
-**Status:** Feature is completed, merged to main or ready to merge. Code compiles and ALL tests pass successfully.
+**Branch:** Merged to `main` (commit `733c954`)
+**Status:** Feature is fully implemented and tested.
 
-### Bugs
-Resolved all conflicts and correctly wired into RiderServiceImpl.
+### Completed Work
+- **Promo Code Management:** Full CRUD for admin to create and manage promo codes.
+- **Validation Engine:** Robust validation for expiry, usage limits, minimum fare, and rider eligibility.
+- **Discount Calculation:** Support for both `FLAT` and `PERCENTAGE` discount types.
+- **Usage Tracking:** Automatic persistence of usage records to prevent double-dipping.
+- **Technical Debt:** Standardized fare calculations to `BigDecimal` across `RiderServiceImpl` and `PromoCodeService`.
+- **Security:** Fixed `TestSecurityConfig` and `GlobalExceptionHandler` to properly handle role-based access and 403 errors.
 
-### Missing Tests
-Resolved. RiderServiceImplTest and other relevant tests pass.
+### Resolved Bugs
+- **Fare Type Mismatch:** All fare and discount values correctly use `BigDecimal`.
+- **Service Integration:** Promo code logic is correctly wired into `RiderServiceImpl.requestRide()`.
+
+### Tests
+- `PromoCodeServiceImplTest`: 10 tests covering all business logic (create, validate, apply, usage limits, expiry).
+- `PromoCodeControllerIntegrationTest`: 6 tests verifying REST endpoints and role-based security.
+- All core service tests (`RiderServiceImplTest`, `DriverServiceImplTest`) updated and passing.
 
 ---
 
