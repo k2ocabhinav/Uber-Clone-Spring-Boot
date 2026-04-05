@@ -2,11 +2,12 @@ package com.github.k2ocabhinav.ubercloneapp.testdata;
 
 import com.github.k2ocabhinav.ubercloneapp.entities.Wallet;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;
+import java.math.BigDecimal;
 
 public class WalletTestBuilder {
     private Long id = 1L;
     private User user;
-    private Double balance = 0.0;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     public WalletTestBuilder withId(Long id) {
         this.id = id;
@@ -18,8 +19,13 @@ public class WalletTestBuilder {
         return this;
     }
 
-    public WalletTestBuilder withBalance(Double balance) {
+    public WalletTestBuilder withBalance(BigDecimal balance) {
         this.balance = balance;
+        return this;
+    }
+
+    public WalletTestBuilder withBalance(Double balance) {
+        this.balance = BigDecimal.valueOf(balance);
         return this;
     }
 
@@ -33,6 +39,10 @@ public class WalletTestBuilder {
 
     public static WalletTestBuilder aWallet() {
         return new WalletTestBuilder();
+    }
+
+    public static WalletTestBuilder aWalletWithBalance(BigDecimal balance) {
+        return aWallet().withBalance(balance);
     }
 
     public static WalletTestBuilder aWalletWithBalance(Double balance) {

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @RestController
@@ -57,14 +58,14 @@ public class DriverEarningsController {
     @GetMapping("/balance")
     @Operation(summary = "Get available payout balance")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<Double> getAvailableBalance() {
+    public ResponseEntity<BigDecimal> getAvailableBalance() {
         return ResponseEntity.ok(driverEarningsService.getAvailableBalance());
     }
 
     @PostMapping("/payout")
     @Operation(summary = "Request a payout")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<PayoutRequestDto> requestPayout(@RequestParam Double amount) {
+    public ResponseEntity<PayoutRequestDto> requestPayout(@RequestParam BigDecimal amount) {
         return ResponseEntity.ok(payoutService.requestPayout(amount));
     }
 

@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class WalletPaymentStrategy implements PaymentStrategy {
         walletService.deductMoneyFromWallet(rider.getUser(),
                 payment.getAmount(), null, payment.getRide(), TransactionMethod.RIDE);
 
-        double driversCut = payment.getAmount() * (1 - platformConfig.getCommissionRate());
+        BigDecimal driversCut = payment.getAmount().multiply(BigDecimal.ONE.subtract(BigDecimal.valueOf(platformConfig.getCommissionRate())));
 
         walletService.addMoneyToWallet(driver.getUser(),
                 driversCut, null, payment.getRide(), TransactionMethod.RIDE);

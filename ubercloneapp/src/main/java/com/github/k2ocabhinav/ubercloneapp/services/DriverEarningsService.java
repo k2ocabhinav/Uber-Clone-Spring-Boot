@@ -6,6 +6,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public interface DriverEarningsService {
@@ -14,5 +15,5 @@ public interface DriverEarningsService {
     EarningsSummaryDto getDailySummary(LocalDate date);
     EarningsSummaryDto getWeeklySummary(LocalDate date);
     EarningsSummaryDto getMonthlySummary(LocalDate date);
-    Double getAvailableBalance();
+    BigDecimal getAvailableBalance();
 }

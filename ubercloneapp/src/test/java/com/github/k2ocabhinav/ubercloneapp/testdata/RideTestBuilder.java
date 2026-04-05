@@ -10,6 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class RideTestBuilder {
@@ -25,7 +26,7 @@ public class RideTestBuilder {
     private Driver driver;
     private PaymentMethod paymentMethod = PaymentMethod.WALLET;
     private RideStatus rideStatus = RideStatus.CONFIRMED;
-    private Double fare = 50.0;
+    private BigDecimal fare = BigDecimal.valueOf(50.0);
     private String otp = "1234";
 
     public RideTestBuilder withId(Long id) {
@@ -78,8 +79,13 @@ public class RideTestBuilder {
         return this;
     }
 
-    public RideTestBuilder withFare(Double fare) {
+    public RideTestBuilder withFare(BigDecimal fare) {
         this.fare = fare;
+        return this;
+    }
+
+    public RideTestBuilder withFare(Double fare) {
+        this.fare = BigDecimal.valueOf(fare);
         return this;
     }
 

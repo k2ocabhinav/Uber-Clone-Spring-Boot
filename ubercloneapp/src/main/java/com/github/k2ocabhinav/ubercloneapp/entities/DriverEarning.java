@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,14 +33,14 @@ public class DriverEarning {
     @ToString.Exclude
     private Ride ride;
 
-    @Column(nullable = false)
-    private Double grossFare;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal grossFare;
 
-    @Column(nullable = false)
-    private Double platformCommission;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal platformCommission;
 
-    @Column(nullable = false)
-    private Double netEarning;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal netEarning;
 
     @CreationTimestamp
     private LocalDateTime createdTime;

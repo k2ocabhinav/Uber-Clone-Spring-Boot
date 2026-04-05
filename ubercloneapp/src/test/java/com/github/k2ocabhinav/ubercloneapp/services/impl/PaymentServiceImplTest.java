@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ class PaymentServiceImplTest {
 
         testRide = Ride.builder()
                 .id(1L)
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .paymentMethod(PaymentMethod.CASH)
                 .build();
 
@@ -58,7 +59,7 @@ class PaymentServiceImplTest {
                 .id(1L)
                 .ride(testRide)
                 .paymentMethod(PaymentMethod.CASH)
-                .amount(100.0)
+                .amount(BigDecimal.valueOf(100.0))
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
     }
@@ -72,6 +73,7 @@ class PaymentServiceImplTest {
         paymentService.processPayment(testRide);
 
         verify(paymentStrategy).processPayment(testPayment);
+        verify(eventPublisher).publishEvent(any());
     }
 
     @Test
@@ -96,7 +98,7 @@ class PaymentServiceImplTest {
         Payment result = paymentService.createNewPayment(testRide);
 
         assertThat(result).isNotNull();
-        assertThat(result.getAmount()).isEqualTo(100.0);
+        assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(100.0));
         assertThat(result.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
         verify(paymentRepository).save(any(Payment.class));
     }

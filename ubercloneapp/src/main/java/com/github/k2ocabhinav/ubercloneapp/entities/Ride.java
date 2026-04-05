@@ -53,11 +53,13 @@ public class Ride{
     @Enumerated(EnumType.STRING)
     private RideStatus rideStatus;
 
-    private Double fare;
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal fare;
 
     private String promoCode;
 
-    private Double discountAmount;
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal discountAmount;
 
     private String otp;
 

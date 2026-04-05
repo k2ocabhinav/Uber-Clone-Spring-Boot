@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -96,7 +97,7 @@ class RiderControllerIntegrationTest {
                 .driver(testDriver)
                 .rideStatus(com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus.CONFIRMED)
                 .paymentMethod(PaymentMethod.WALLET)
-                .fare(90.0)
+                .fare(BigDecimal.valueOf(90.0))
                 .otp("1234")
                 .build();
         confirmedRide = rideRepository.save(confirmedRide);
@@ -106,7 +107,7 @@ class RiderControllerIntegrationTest {
                 .driver(testDriver)
                 .rideStatus(com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus.ENDED)
                 .paymentMethod(PaymentMethod.WALLET)
-                .fare(140.0)
+                .fare(BigDecimal.valueOf(140.0))
                 .otp("5678")
                 .startedAt(LocalDateTime.now().minusMinutes(30))
                 .endedAt(LocalDateTime.now().minusMinutes(10))

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,8 +29,8 @@ public class PayoutRequest {
     @ToString.Exclude
     private Driver driver;
 
-    @Column(nullable = false)
-    private Double amount;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

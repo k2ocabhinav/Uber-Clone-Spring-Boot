@@ -59,7 +59,7 @@ class FareEstimationServiceImplTest {
         org.mockito.Mockito.lenient().when(distanceService.calculateDistanceAndDuration(any(Point.class), any(Point.class)))
                 .thenReturn(new double[]{10.5, 25.0});
         when(rideStrategyManager.rideFareCalculationStrategy()).thenReturn(fareCalculationStrategy);
-        when(fareCalculationStrategy.calculateFare(any(RideRequest.class))).thenReturn(150.0);
+        when(fareCalculationStrategy.calculateFare(any(RideRequest.class))).thenReturn(BigDecimal.valueOf(150.0));
 
         // Act
         FareEstimateDto result = fareEstimationService.estimateFare(requestDto);

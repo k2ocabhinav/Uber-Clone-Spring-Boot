@@ -9,13 +9,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
+
 public interface PayoutRequestRepository extends JpaRepository<PayoutRequest, Long> {
     Page<PayoutRequest> findByDriverOrderByRequestedAtDesc(Driver driver, Pageable pageable);
     
     Page<PayoutRequest> findByStatusOrderByRequestedAtAsc(PayoutStatus status, Pageable pageable);
 
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PayoutRequest p WHERE p.driver = :driver AND p.status IN (:status1, :status2)")
-    Double getTotalPayoutsByDriverAndStatuses(@Param("driver") Driver driver, 
+    BigDecimal getTotalPayoutsByDriverAndStatuses(@Param("driver") Driver driver, 
                                               @Param("status1") PayoutStatus status1, 
                                               @Param("status2") PayoutStatus status2);
 }

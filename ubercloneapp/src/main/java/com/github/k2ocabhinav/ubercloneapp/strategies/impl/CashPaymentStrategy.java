@@ -11,6 +11,8 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.PaymentStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class CashPaymentStrategy implements PaymentStrategy {
@@ -23,7 +25,7 @@ public class CashPaymentStrategy implements PaymentStrategy {
     public void processPayment(Payment payment) {
         Driver driver = payment.getRide().getDriver();
 
-        double platformCommission = payment.getAmount() * platformConfig.getCommissionRate();
+        BigDecimal platformCommission = payment.getAmount().multiply(BigDecimal.valueOf(platformConfig.getCommissionRate()));
 
         walletService.deductMoneyFromWallet(driver.getUser(), platformCommission, null,
                 payment.getRide(), TransactionMethod.RIDE);

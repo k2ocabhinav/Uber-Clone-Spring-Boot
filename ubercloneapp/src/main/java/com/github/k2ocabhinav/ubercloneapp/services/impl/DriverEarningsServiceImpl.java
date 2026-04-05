@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -37,9 +38,9 @@ public class DriverEarningsServiceImpl implements DriverEarningsService {
     @Override
     @Transactional
     public void createEarningRecord(Ride ride) {
-        Double grossFare = ride.getFare();
-        Double platformCommission = grossFare * platformConfig.getCommissionRate();
-        Double netEarning = grossFare - platformCommission;
+        BigDecimal grossFare = ride.getFare();
+        BigDecimal platformCommission = grossFare.multiply(BigDecimal.valueOf(platformConfig.getCommissionRate()));
+        BigDecimal netEarning = grossFare.subtract(platformCommission);
 
         DriverEarning earning = DriverEarning.builder()
                 .driver(ride.getDriver())
@@ -72,7 +73,7 @@ public class DriverEarningsServiceImpl implements DriverEarningsService {
         LocalDateTime endDate = date.plusDays(1).atStartOfDay();
         EarningsSummaryDto summary = driverEarningRepository.getEarningsSummary(driver, startDate, endDate);
         if (summary == null || summary.getRideCount() == 0) {
-            summary = new EarningsSummaryDto(0.0, 0.0, 0.0, 0L, startDate, endDate);
+            summary = new EarningsSummaryDto(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, null, startDate, endDate);
         }
         summary.setPeriod("DAILY");
         summary.setStartDate(startDate);
@@ -89,7 +90,7 @@ public class DriverEarningsServiceImpl implements DriverEarningsService {
         LocalDateTime endDate = startOfWeek.plusWeeks(1).atStartOfDay();
         EarningsSummaryDto summary = driverEarningRepository.getEarningsSummary(driver, startDate, endDate);
         if (summary == null || summary.getRideCount() == 0) {
-            summary = new EarningsSummaryDto(0.0, 0.0, 0.0, 0L, startDate, endDate);
+            summary = new EarningsSummaryDto(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, null, startDate, endDate);
         }
         summary.setPeriod("WEEKLY");
         summary.setStartDate(startDate);
@@ -106,7 +107,7 @@ public class DriverEarningsServiceImpl implements DriverEarningsService {
         LocalDateTime endDate = startOfMonth.plusMonths(1).atStartOfDay();
         EarningsSummaryDto summary = driverEarningRepository.getEarningsSummary(driver, startDate, endDate);
         if (summary == null || summary.getRideCount() == 0) {
-            summary = new EarningsSummaryDto(0.0, 0.0, 0.0, 0L, startDate, endDate);
+            summary = new EarningsSummaryDto(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, null, startDate, endDate);
         }
         summary.setPeriod("MONTHLY");
         summary.setStartDate(startDate);
@@ -116,14 +117,17 @@ public class DriverEarningsServiceImpl implements DriverEarningsService {
     
     @Override
     @Transactional(readOnly = true)
-    public Double getAvailableBalance() {
+    public BigDecimal getAvailableBalance() {
         Driver driver = getCurrentDriver();
-        Double totalNet = driverEarningRepository.getTotalNetEarningsByDriver(driver);
-        Double pendingAndProcessedPayouts = payoutRequestRepository.getTotalPayoutsByDriverAndStatuses(
-            driver, PayoutStatus.PENDING, PayoutStatus.PROCESSED);
+        BigDecimal totalNet = driverEarningRepository.getTotalNetEarningsByDriver(driver);
+        if (totalNet == null) totalNet = BigDecimal.ZERO;
         
-        Double balance = totalNet - pendingAndProcessedPayouts;
-        return balance < 0 ? 0.0 : balance;
+        BigDecimal pendingAndProcessedPayouts = payoutRequestRepository.getTotalPayoutsByDriverAndStatuses(
+            driver, PayoutStatus.PENDING, PayoutStatus.PROCESSED);
+        if (pendingAndProcessedPayouts == null) pendingAndProcessedPayouts = BigDecimal.ZERO;
+        
+        BigDecimal balance = totalNet.subtract(pendingAndProcessedPayouts);
+        return balance.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : balance;
     }
 
     private Driver getCurrentDriver() {

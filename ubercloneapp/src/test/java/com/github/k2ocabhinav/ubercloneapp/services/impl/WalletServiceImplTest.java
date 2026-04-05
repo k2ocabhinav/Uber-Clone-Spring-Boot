@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +57,7 @@ class WalletServiceImplTest {
         testWallet = Wallet.builder()
                 .id(1L)
                 .user(testUser)
-                .balance(100.0)
+                .balance(BigDecimal.valueOf(100.0))
                 .build();
     }
 
@@ -67,7 +68,7 @@ class WalletServiceImplTest {
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet);
         
         Wallet result = walletService.addMoneyToWallet(
-                testUser, 50.0, "TXN123", null, TransactionMethod.BANKING);
+                testUser, BigDecimal.valueOf(50.0), "TXN123", null, TransactionMethod.BANKING);
         
         ArgumentCaptor<WalletTransaction> transactionCaptor = 
                 ArgumentCaptor.forClass(WalletTransaction.class);
@@ -75,8 +76,8 @@ class WalletServiceImplTest {
         
         WalletTransaction capturedTransaction = transactionCaptor.getValue();
         assertThat(capturedTransaction.getTransactionType()).isEqualTo(TransactionType.CREDIT);
-        assertThat(capturedTransaction.getAmount()).isEqualTo(50.0);
-        assertThat(testWallet.getBalance()).isEqualTo(150.0);
+        assertThat(capturedTransaction.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(50.0));
+        assertThat(testWallet.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
     }
 
     @Test
@@ -86,9 +87,9 @@ class WalletServiceImplTest {
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet);
         
         Wallet result = walletService.deductMoneyFromWallet(
-                testUser, 30.0, "TXN456", null, TransactionMethod.RIDE);
+                testUser, BigDecimal.valueOf(30.0), "TXN456", null, TransactionMethod.RIDE);
         
-        assertThat(testWallet.getBalance()).isEqualTo(70.0);
+        assertThat(testWallet.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(70.0));
     }
 
     @Test
@@ -99,7 +100,7 @@ class WalletServiceImplTest {
         Wallet result = walletService.findByUser(testUser);
         
         assertThat(result).isEqualTo(testWallet);
-        assertThat(result.getBalance()).isEqualTo(100.0);
+        assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(100.0));
     }
 
     @Test
@@ -124,7 +125,7 @@ class WalletServiceImplTest {
         Wallet result = walletService.createNewWallet(testUser);
         
         assertThat(result.getUser()).isEqualTo(testUser);
-        assertThat(result.getBalance()).isEqualTo(0.0);
+        assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
         verify(walletRepository).save(any(Wallet.class));
     }
 }

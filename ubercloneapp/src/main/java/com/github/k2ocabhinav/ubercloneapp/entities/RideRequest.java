@@ -55,7 +55,8 @@ public class RideRequest {
 
     private String promoCode;
 
-    private Double discountAmount;
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal discountAmount;
 
     @Version
     private Long version;

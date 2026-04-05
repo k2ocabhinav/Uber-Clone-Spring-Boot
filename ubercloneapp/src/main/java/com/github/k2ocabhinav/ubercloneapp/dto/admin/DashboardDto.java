@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Data
@@ -14,9 +15,9 @@ public class DashboardDto {
     private Long totalUsers;
     private Long totalDrivers;
     private Long totalRides;
-    private Double totalRevenue;
+    private BigDecimal totalRevenue;
     private Long activeRides;
     private Long pendingApprovals;
     private Map<String, Long> ridesByStatus;
-    private Map<String, Double> revenueByDay;
+    private Map<String, BigDecimal> revenueByDay;
 }

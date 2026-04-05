@@ -107,7 +107,7 @@ class DriverServiceImplTest {
                 .driver(testDriver)
                 .rideStatus(RideStatus.CONFIRMED)
                 .otp("1234")
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .paymentMethod(PaymentMethod.CASH)
                 .build();
     }

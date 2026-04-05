@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
@@ -25,9 +27,9 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public Wallet addMoneyToWallet(User user, Double amount, String transactionId, Ride ride, TransactionMethod transactionMethod) {
+    public Wallet addMoneyToWallet(User user, BigDecimal amount, String transactionId, Ride ride, TransactionMethod transactionMethod) {
         Wallet wallet = findByUser(user);
-        wallet.setBalance(wallet.getBalance()+amount);
+        wallet.setBalance(wallet.getBalance().add(amount));
 
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .transactionId(transactionId)
@@ -45,11 +47,11 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public Wallet deductMoneyFromWallet(User user, Double amount,
+    public Wallet deductMoneyFromWallet(User user, BigDecimal amount,
                                         String transactionId, Ride ride,
                                         TransactionMethod transactionMethod) {
         Wallet wallet = findByUser(user);
-        wallet.setBalance(wallet.getBalance()-amount);
+        wallet.setBalance(wallet.getBalance().subtract(amount));
 
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .transactionId(transactionId)
@@ -62,8 +64,6 @@ public class WalletServiceImpl implements WalletService {
 
         walletTransactionService.createNewWalletTransaction(walletTransaction);
 
-//        wallet.getTransactions().add(walletTransaction);
-
         return walletRepository.save(wallet);
     }
 
@@ -72,12 +72,12 @@ public class WalletServiceImpl implements WalletService {
     public void withdrawAllMyMoneyFromWallet(User user) {
         Wallet wallet = findByUser(user);
         
-        if (wallet.getBalance() <= 0) {
+        if (wallet.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
             return;
         }
         
-        Double amount = wallet.getBalance();
-        wallet.setBalance(0.0);
+        BigDecimal amount = wallet.getBalance();
+        wallet.setBalance(BigDecimal.ZERO);
 
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .transactionId(java.util.UUID.randomUUID().toString())

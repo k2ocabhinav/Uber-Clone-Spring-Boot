@@ -49,10 +49,17 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         accessor.setUser(authentication);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         log.debug("WebSocket authenticated user: {}", userPrincipal.getEmail());
+                    } else {
+                        log.warn("Invalid WebSocket token provided");
+                        return null; // Reject connection
                     }
                 } catch (Exception e) {
                     log.warn("WebSocket auth failed: {}", e.getMessage());
+                    return null; // Reject connection
                 }
+            } else {
+                log.warn("No Authorization header provided for WebSocket connection");
+                return null; // Reject connection
             }
         }
         return message;

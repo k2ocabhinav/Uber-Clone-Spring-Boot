@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface DriverEarningRepository extends JpaRepository<DriverEarning, Long> {
@@ -24,5 +25,5 @@ public interface DriverEarningRepository extends JpaRepository<DriverEarning, Lo
                                           @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT COALESCE(SUM(e.netEarning), 0) FROM DriverEarning e WHERE e.driver = :driver")
-    Double getTotalNetEarningsByDriver(@Param("driver") Driver driver);
+    BigDecimal getTotalNetEarningsByDriver(@Param("driver") Driver driver);
 }

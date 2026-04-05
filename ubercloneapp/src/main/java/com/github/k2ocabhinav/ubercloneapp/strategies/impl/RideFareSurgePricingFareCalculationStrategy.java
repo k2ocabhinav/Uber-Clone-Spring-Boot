@@ -7,6 +7,8 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.RideFareCalculationStrateg
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 
 @Service
 @RequiredArgsConstructor
@@ -16,9 +18,11 @@ public class RideFareSurgePricingFareCalculationStrategy implements RideFareCalc
     private final FareConfig fareConfig;
 
     @Override
-    public double calculateFare(RideRequest rideRequest) {
+    public BigDecimal calculateFare(RideRequest rideRequest) {
         double distance = distanceService.calculateDistance(rideRequest.getPickupLocation(),
                 rideRequest.getDropOffLocation());
-        return distance * fareConfig.getPerKmRate() * fareConfig.getSurgeMultiplier();
+        return BigDecimal.valueOf(distance)
+                .multiply(BigDecimal.valueOf(fareConfig.getPerKmRate()))
+                .multiply(BigDecimal.valueOf(fareConfig.getSurgeMultiplier()));
     }
 }

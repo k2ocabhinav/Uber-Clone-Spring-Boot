@@ -60,6 +60,6 @@ public class NotificationController {
     private User getCurrentUser() {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findById(principal.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException("User not found with id: " + principal.getUserId()));
     }
 }

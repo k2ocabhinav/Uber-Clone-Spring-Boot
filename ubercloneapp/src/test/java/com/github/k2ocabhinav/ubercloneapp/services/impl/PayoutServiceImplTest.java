@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +59,7 @@ class PayoutServiceImplTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        user.setId(1L);
+        user.setId(101L);
 
         driver = new Driver();
         driver.setId(1L);
@@ -66,25 +67,25 @@ class PayoutServiceImplTest {
     }
 
     private void mockSecurityContext() {
-        UserPrincipal principal = new UserPrincipal(1L, "user@test.com", "password");
+        UserPrincipal principal = new UserPrincipal(101L, "user@test.com", "password");
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(principal);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(driverRepository.findByUserId(1L)).thenReturn(Optional.of(driver));
+        when(driverRepository.findByUserId(101L)).thenReturn(Optional.of(driver));
     }
 
     @Test
     void requestPayout_ShouldSuccess_WhenBalanceIsSufficient() {
         mockSecurityContext();
-        when(driverEarningsService.getAvailableBalance()).thenReturn(500.0);
+        when(driverEarningsService.getAvailableBalance()).thenReturn(BigDecimal.valueOf(500.0));
 
         PayoutRequest savedRequest = new PayoutRequest();
         savedRequest.setId(1L);
         savedRequest.setStatus(PayoutStatus.PENDING);
-        savedRequest.setAmount(100.0);
+        savedRequest.setAmount(BigDecimal.valueOf(100.0));
 
         PayoutRequestDto expectedDto = new PayoutRequestDto();
         expectedDto.setStatus(PayoutStatus.PENDING);
@@ -92,18 +93,20 @@ class PayoutServiceImplTest {
         when(payoutRequestRepository.save(any(PayoutRequest.class))).thenReturn(savedRequest);
         when(modelMapper.map(savedRequest, PayoutRequestDto.class)).thenReturn(expectedDto);
 
-        PayoutRequestDto result = payoutService.requestPayout(100.0);
+        PayoutRequestDto result = payoutService.requestPayout(BigDecimal.valueOf(100.0));
 
         assertThat(result.getStatus()).isEqualTo(PayoutStatus.PENDING);
-        verify(payoutRequestRepository).save(argThat(req -> req.getAmount() == 100.0 && req.getStatus() == PayoutStatus.PENDING));
+        verify(payoutRequestRepository).save(argThat(req -> 
+            req.getAmount().compareTo(BigDecimal.valueOf(100.0)) == 0 && 
+            req.getStatus() == PayoutStatus.PENDING));
     }
 
     @Test
     void requestPayout_ShouldThrowException_WhenBalanceIsInsufficient() {
-        when(driverEarningsService.getAvailableBalance()).thenReturn(50.0);
+        when(driverEarningsService.getAvailableBalance()).thenReturn(BigDecimal.valueOf(50.0));
 
         RuntimeException ex = assertThrows(RuntimeConflictException.class, () -> {
-            payoutService.requestPayout(100.0);
+            payoutService.requestPayout(BigDecimal.valueOf(100.0));
         });
 
         assertThat(ex.getMessage()).isEqualTo("Insufficient earnings balance for payout request");
@@ -115,7 +118,7 @@ class PayoutServiceImplTest {
         PayoutRequest request = new PayoutRequest();
         request.setId(1L);
         request.setDriver(driver);
-        request.setAmount(200.0);
+        request.setAmount(BigDecimal.valueOf(200.0));
         request.setStatus(PayoutStatus.APPROVED);
 
         when(payoutRequestRepository.findById(1L)).thenReturn(Optional.of(request));
@@ -129,7 +132,7 @@ class PayoutServiceImplTest {
         PayoutRequestDto result = payoutService.processPayout(1L);
 
         assertThat(result.getStatus()).isEqualTo(PayoutStatus.PROCESSED);
-        verify(walletService).addMoneyToWallet(eq(user), eq(200.0), anyString(), isNull(), eq(TransactionMethod.BANKING));
+        verify(walletService).addMoneyToWallet(eq(user), eq(BigDecimal.valueOf(200.0)), anyString(), isNull(), eq(TransactionMethod.BANKING));
         assertThat(request.getStatus()).isEqualTo(PayoutStatus.PROCESSED);
     }
 }

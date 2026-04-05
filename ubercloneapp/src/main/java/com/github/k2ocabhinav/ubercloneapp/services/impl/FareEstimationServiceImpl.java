@@ -32,10 +32,10 @@ public class FareEstimationServiceImpl implements FareEstimationService {
         double distanceKm = distanceDuration[0];
         double durationMins = distanceDuration[1];
         
-        double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(dummyRideRequest);
+        BigDecimal fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(dummyRideRequest);
         
         return FareEstimateDto.builder()
-                .estimatedFare(BigDecimal.valueOf(fare))
+                .estimatedFare(fare)
                 .distanceKm(distanceKm)
                 .durationMinutes(durationMins)
                 .surgeMultiplier(1.0)

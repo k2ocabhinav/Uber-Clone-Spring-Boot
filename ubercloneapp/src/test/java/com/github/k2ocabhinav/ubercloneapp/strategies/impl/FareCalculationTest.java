@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -40,10 +42,10 @@ class FareCalculationTest {
         when(distanceService.calculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation()))
                 .thenReturn(5.0);
         
-        double fare = defaultStrategy.calculateFare(rideRequest);
+        BigDecimal fare = defaultStrategy.calculateFare(rideRequest);
         
-        assertThat(fare).isGreaterThan(0);
-        assertThat(fare).isEqualTo(5.0 * 10.0);
+        assertThat(fare).isGreaterThan(BigDecimal.ZERO);
+        assertThat(fare).isEqualByComparingTo(BigDecimal.valueOf(50.0));
     }
 
     @Test
@@ -53,10 +55,10 @@ class FareCalculationTest {
         when(distanceService.calculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation()))
                 .thenReturn(5.0);
         
-        double defaultFare = defaultStrategy.calculateFare(rideRequest);
-        double surgeFare = surgeStrategy.calculateFare(rideRequest);
+        BigDecimal defaultFare = defaultStrategy.calculateFare(rideRequest);
+        BigDecimal surgeFare = surgeStrategy.calculateFare(rideRequest);
         
-        assertThat(surgeFare).isEqualTo(defaultFare * 2);
+        assertThat(surgeFare).isEqualByComparingTo(defaultFare.multiply(BigDecimal.valueOf(2.0)));
     }
 
     @Test
@@ -66,9 +68,9 @@ class FareCalculationTest {
         when(distanceService.calculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation()))
                 .thenReturn(0.0);
         
-        double fare = defaultStrategy.calculateFare(rideRequest);
+        BigDecimal fare = defaultStrategy.calculateFare(rideRequest);
         
-        assertThat(fare).isEqualTo(0.0);
+        assertThat(fare).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -78,11 +80,11 @@ class FareCalculationTest {
         when(distanceService.calculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation()))
                 .thenReturn(10.0);
         
-        double defaultFare = defaultStrategy.calculateFare(rideRequest);
-        double surgeFare = surgeStrategy.calculateFare(rideRequest);
+        BigDecimal defaultFare = defaultStrategy.calculateFare(rideRequest);
+        BigDecimal surgeFare = surgeStrategy.calculateFare(rideRequest);
         
-        assertThat(surgeFare).isEqualTo(200.0);
-        assertThat(surgeFare).isEqualTo(defaultFare * 2);
+        assertThat(surgeFare).isEqualByComparingTo(BigDecimal.valueOf(200.0));
+        assertThat(surgeFare).isEqualByComparingTo(defaultFare.multiply(BigDecimal.valueOf(2.0)));
     }
 
     private RideRequest createMockRideRequest() {

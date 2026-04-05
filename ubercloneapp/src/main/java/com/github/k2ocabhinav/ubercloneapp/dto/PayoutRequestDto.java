@@ -4,7 +4,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.PayoutStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PayoutRequestDto {
     private Long id;
-    private Double amount;
+    private BigDecimal amount;
     private PayoutStatus status;
     private LocalDateTime requestedAt;
     private LocalDateTime processedAt;

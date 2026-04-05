@@ -3,7 +3,6 @@ package com.github.k2ocabhinav.ubercloneapp.services.impl;
 import com.github.k2ocabhinav.ubercloneapp.configs.PlatformConfig;
 import com.github.k2ocabhinav.ubercloneapp.dto.EarningsSummaryDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
-import com.github.k2ocabhinav.ubercloneapp.entities.DriverEarning;
 import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
 import com.github.k2ocabhinav.ubercloneapp.repositories.DriverEarningRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.DriverRepository;
@@ -20,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -58,20 +58,20 @@ class DriverEarningsServiceImplTest {
     }
 
     private void mockSecurityContext() {
-        UserPrincipal principal = new UserPrincipal(1L, "user@test.com", "password");
+        UserPrincipal principal = new UserPrincipal(101L, "user@test.com", "password");
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(principal);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(driverRepository.findByUserId(1L)).thenReturn(Optional.of(driver));
+        when(driverRepository.findByUserId(101L)).thenReturn(Optional.of(driver));
     }
 
     @Test
     void createEarningRecord_ShouldCalculateAndSaveProperly() {
         Ride ride = new Ride();
-        ride.setFare(100.0);
+        ride.setFare(BigDecimal.valueOf(100.0));
         ride.setDriver(driver);
 
         when(platformConfig.getCommissionRate()).thenReturn(0.30);
@@ -79,9 +79,9 @@ class DriverEarningsServiceImplTest {
         driverEarningsService.createEarningRecord(ride);
 
         verify(driverEarningRepository).save(argThat(earning -> 
-            earning.getGrossFare() == 100.0 &&
-            earning.getPlatformCommission() == 30.0 &&
-            earning.getNetEarning() == 70.0 &&
+            earning.getGrossFare().compareTo(BigDecimal.valueOf(100.0)) == 0 &&
+            earning.getPlatformCommission().compareTo(BigDecimal.valueOf(30.0)) == 0 &&
+            earning.getNetEarning().compareTo(BigDecimal.valueOf(70.0)) == 0 &&
             earning.getDriver().equals(driver)
         ));
     }
@@ -91,7 +91,15 @@ class DriverEarningsServiceImplTest {
         mockSecurityContext();
 
         LocalDate today = LocalDate.now();
-        EarningsSummaryDto expectedSummary = new EarningsSummaryDto(100.0, 30.0, 70.0, 1L, "DAILY", today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        EarningsSummaryDto expectedSummary = new EarningsSummaryDto(
+            BigDecimal.valueOf(100.0), 
+            BigDecimal.valueOf(30.0), 
+            BigDecimal.valueOf(70.0), 
+            1L, 
+            "DAILY", 
+            today.atStartOfDay(), 
+            today.plusDays(1).atStartOfDay()
+        );
 
         when(driverEarningRepository.getEarningsSummary(eq(driver), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(expectedSummary);
@@ -99,7 +107,7 @@ class DriverEarningsServiceImplTest {
         EarningsSummaryDto result = driverEarningsService.getDailySummary(today);
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalGross()).isEqualTo(100.0);
+        assertThat(result.getTotalGross()).isEqualByComparingTo(BigDecimal.valueOf(100.0));
         assertThat(result.getPeriod()).isEqualTo("DAILY");
     }
 
@@ -114,7 +122,7 @@ class DriverEarningsServiceImplTest {
         EarningsSummaryDto result = driverEarningsService.getDailySummary(today);
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalGross()).isEqualTo(0.0);
+        assertThat(result.getTotalGross()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.getRideCount()).isEqualTo(0L);
         assertThat(result.getPeriod()).isEqualTo("DAILY");
     }

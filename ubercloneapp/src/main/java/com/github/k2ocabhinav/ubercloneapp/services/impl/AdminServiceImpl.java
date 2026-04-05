@@ -7,7 +7,6 @@ import com.github.k2ocabhinav.ubercloneapp.dto.admin.RevenueReportDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
 import com.github.k2ocabhinav.ubercloneapp.entities.Payment;
 import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
-import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.PaymentStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
@@ -22,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class AdminServiceImpl implements AdminService {
     private final RideRequestRepository rideRequestRepository;
     private final CacheService cacheService;
 
-    private static final double PLATFORM_COMMISSION = 0.30;
+    private static final BigDecimal PLATFORM_COMMISSION = BigDecimal.valueOf(0.30);
 
     @Override
     @Transactional(readOnly = true)
@@ -55,9 +55,9 @@ public class AdminServiceImpl implements AdminService {
         long totalRides = rideRepository.count();
         
         List<Payment> confirmedPayments = paymentRepository.findByPaymentStatus(PaymentStatus.CONFIRMED);
-        double totalRevenue = confirmedPayments.stream()
-                .mapToDouble(Payment::getAmount)
-                .sum();
+        BigDecimal totalRevenue = confirmedPayments.stream()
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         
         long activeRides = rideRepository.countByRideStatus(RideStatus.ONGOING);
         
@@ -120,12 +120,12 @@ public class AdminServiceImpl implements AdminService {
                 .filter(r -> r.getRideStatus() == RideStatus.CANCELLED)
                 .count();
         
-        double totalRevenue = dailyRides.stream()
+        BigDecimal totalRevenue = dailyRides.stream()
                 .filter(r -> r.getFare() != null)
-                .mapToDouble(Ride::getFare)
-                .sum();
+                .map(Ride::getFare)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        double platformCommission = totalRevenue * PLATFORM_COMMISSION;
+        BigDecimal platformCommission = totalRevenue.multiply(PLATFORM_COMMISSION);
         long totalUsers = userRepository.count();
         long newUsers = userRepository.findAll().stream()
                 .filter(u -> {
@@ -162,7 +162,7 @@ public class AdminServiceImpl implements AdminService {
                             .date(date)
                             .grossRevenue(stats.getTotalRevenue())
                             .platformCommission(stats.getPlatformCommission())
-                            .driverEarnings(stats.getTotalRevenue() * (1 - PLATFORM_COMMISSION))
+                            .driverEarnings(stats.getTotalRevenue().multiply(BigDecimal.ONE.subtract(PLATFORM_COMMISSION)))
                             .rideCount(stats.getCompletedRides())
                             .build();
                 })

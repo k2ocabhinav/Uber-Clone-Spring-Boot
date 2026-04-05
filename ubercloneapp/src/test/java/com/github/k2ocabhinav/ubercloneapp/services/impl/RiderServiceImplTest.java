@@ -141,7 +141,7 @@ class RiderServiceImplTest {
                 .rider(testRider)
                 .driver(testDriver)
                 .rideStatus(RideStatus.CONFIRMED)
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .build();
     }
 
@@ -164,7 +164,7 @@ class RiderServiceImplTest {
         mockAuthenticatedRider();
         when(modelMapper.map(testRideRequestDto, RideRequest.class)).thenReturn(testRideRequest);
         when(rideStrategyManager.rideFareCalculationStrategy()).thenReturn(fareCalculationStrategy);
-        when(fareCalculationStrategy.calculateFare(testRideRequest)).thenReturn(150.0);
+        when(fareCalculationStrategy.calculateFare(testRideRequest)).thenReturn(BigDecimal.valueOf(150.0));
         when(rideRequestRepository.save(testRideRequest)).thenReturn(testRideRequest);
         when(rideStrategyManager.driverMatchingStrategy(testRider.getRating())).thenReturn(driverMatchingStrategy);
         when(driverMatchingStrategy.findMatchingDrivers(testRideRequest)).thenReturn(List.of());

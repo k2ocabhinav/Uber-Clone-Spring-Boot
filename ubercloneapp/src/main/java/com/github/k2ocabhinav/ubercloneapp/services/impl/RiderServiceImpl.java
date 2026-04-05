@@ -54,7 +54,7 @@ public class RiderServiceImpl implements RiderService {
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
         rideRequest.setRider(rider);
 
-        BigDecimal fare = BigDecimal.valueOf(rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest));
+        BigDecimal fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
 
         String promoCode = rideRequestDto.getPromoCode();
         if (promoCode != null && !promoCode.isBlank()) {
@@ -62,7 +62,7 @@ public class RiderServiceImpl implements RiderService {
                 promoCodeService.validateAndApplyPromo(promoCode, rider.getUser(), fare);
             if (promoResult.isValid() && promoResult.getDiscountAmount() != null) {
                 rideRequest.setPromoCode(promoCode);
-                rideRequest.setDiscountAmount(promoResult.getDiscountAmount().doubleValue());
+                rideRequest.setDiscountAmount(promoResult.getDiscountAmount());
                 fare = fare.subtract(promoResult.getDiscountAmount());
             }
         }

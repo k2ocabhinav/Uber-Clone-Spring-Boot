@@ -37,7 +37,8 @@ public class Payment {
     @JoinColumn
     private Ride ride;
 
-    private Double amount;
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;

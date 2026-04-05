@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -12,8 +13,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class RevenueReportDto {
     private LocalDate date;
-    private Double grossRevenue;
-    private Double platformCommission;
-    private Double driverEarnings;
+    private BigDecimal grossRevenue;
+    private BigDecimal platformCommission;
+    private BigDecimal driverEarnings;
     private Long rideCount;
 }

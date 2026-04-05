@@ -6,6 +6,7 @@ import com.github.k2ocabhinav.ubercloneapp.entities.enums.NotificationType;
 import com.github.k2ocabhinav.ubercloneapp.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,7 +16,7 @@ public class NotificationEventListener {
 
     private final NotificationService notificationService;
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handleRideRequested(RideRequestedEvent event) {
         Rider rider = event.getRideRequest().getRider();
         notificationService.createNotification(
@@ -28,10 +29,12 @@ public class NotificationEventListener {
         log.debug("Notification created for ride request: {}", event.getRideRequest().getId());
     }
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handleRideAccepted(RideAcceptedEvent event) {
         Rider rider = event.getRide().getRider();
         Driver driver = event.getDriver();
+        
+        // Notify Rider
         notificationService.createNotification(
                 rider.getUser(),
                 "Driver Accepted",
@@ -39,12 +42,25 @@ public class NotificationEventListener {
                 NotificationType.RIDE_ACCEPTED,
                 event.getRide().getId()
         );
-        log.debug("Notification created for ride accepted: {}", event.getRide().getId());
+        
+        // Notify Driver
+        notificationService.createNotification(
+                driver.getUser(),
+                "Ride Accepted",
+                "You have successfully accepted the ride for " + rider.getUser().getFirstName(),
+                NotificationType.RIDE_ACCEPTED,
+                event.getRide().getId()
+        );
+        
+        log.debug("Notifications created for ride accepted: {}", event.getRide().getId());
     }
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handleRideStarted(RideStartedEvent event) {
         Rider rider = event.getRide().getRider();
+        Driver driver = event.getRide().getDriver();
+        
+        // Notify Rider
         notificationService.createNotification(
                 rider.getUser(),
                 "Ride Started",
@@ -52,12 +68,25 @@ public class NotificationEventListener {
                 NotificationType.RIDE_STARTED,
                 event.getRide().getId()
         );
-        log.debug("Notification created for ride started: {}", event.getRide().getId());
+        
+        // Notify Driver
+        notificationService.createNotification(
+                driver.getUser(),
+                "Ride Started",
+                "Ongoing ride with " + rider.getUser().getFirstName() + " has started.",
+                NotificationType.RIDE_STARTED,
+                event.getRide().getId()
+        );
+        
+        log.debug("Notifications created for ride started: {}", event.getRide().getId());
     }
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handleRideEnded(RideEndedEvent event) {
         Rider rider = event.getRide().getRider();
+        Driver driver = event.getRide().getDriver();
+        
+        // Notify Rider
         notificationService.createNotification(
                 rider.getUser(),
                 "Ride Ended",
@@ -65,12 +94,25 @@ public class NotificationEventListener {
                 NotificationType.RIDE_ENDED,
                 event.getRide().getId()
         );
-        log.debug("Notification created for ride ended: {}", event.getRide().getId());
+        
+        // Notify Driver
+        notificationService.createNotification(
+                driver.getUser(),
+                "Ride Ended",
+                "Ride with " + rider.getUser().getFirstName() + " has ended. Earnings will be credited shortly.",
+                NotificationType.RIDE_ENDED,
+                event.getRide().getId()
+        );
+        
+        log.debug("Notifications created for ride ended: {}", event.getRide().getId());
     }
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handleRideCancelled(RideCancelledEvent event) {
         Rider rider = event.getRide().getRider();
+        Driver driver = event.getRide().getDriver();
+        
+        // Notify Rider
         notificationService.createNotification(
                 rider.getUser(),
                 "Ride Cancelled",
@@ -78,12 +120,27 @@ public class NotificationEventListener {
                 NotificationType.RIDE_CANCELLED,
                 event.getRide().getId()
         );
-        log.debug("Notification created for ride cancelled: {}", event.getRide().getId());
+        
+        // Notify Driver (if assigned)
+        if (driver != null) {
+            notificationService.createNotification(
+                    driver.getUser(),
+                    "Ride Cancelled",
+                    "The ride with " + rider.getUser().getFirstName() + " has been cancelled.",
+                    NotificationType.RIDE_CANCELLED,
+                    event.getRide().getId()
+            );
+        }
+        
+        log.debug("Notifications created for ride cancelled: {}", event.getRide().getId());
     }
 
-    @org.springframework.context.event.EventListener
+    @EventListener
     public void handlePaymentProcessed(PaymentProcessedEvent event) {
         Rider rider = event.getPayment().getRide().getRider();
+        Driver driver = event.getPayment().getRide().getDriver();
+        
+        // Notify Rider
         notificationService.createNotification(
                 rider.getUser(),
                 "Payment Processed",
@@ -91,6 +148,16 @@ public class NotificationEventListener {
                 NotificationType.PAYMENT_PROCESSED,
                 event.getPayment().getId()
         );
-        log.debug("Notification created for payment processed: {}", event.getPayment().getId());
+        
+        // Notify Driver
+        notificationService.createNotification(
+                driver.getUser(),
+                "Earnings Credited",
+                "Earnings for ride " + event.getPayment().getRide().getId() + " have been credited to your account.",
+                NotificationType.PAYMENT_PROCESSED,
+                event.getPayment().getId()
+        );
+        
+        log.debug("Notifications created for payment processed: {}", event.getPayment().getId());
     }
 }

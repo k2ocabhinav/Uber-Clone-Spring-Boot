@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,13 +37,13 @@ public class PayoutServiceImpl implements PayoutService {
 
     @Override
     @Transactional
-    public PayoutRequestDto requestPayout(Double amount) {
-        if (amount <= 0) {
+    public PayoutRequestDto requestPayout(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeConflictException("Payout amount must be greater than zero");
         }
 
-        Double availableBalance = driverEarningsService.getAvailableBalance();
-        if (amount > availableBalance) {
+        BigDecimal availableBalance = driverEarningsService.getAvailableBalance();
+        if (amount.compareTo(availableBalance) > 0) {
             throw new RuntimeConflictException("Insufficient earnings balance for payout request");
         }
 

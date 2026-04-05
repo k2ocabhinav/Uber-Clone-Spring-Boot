@@ -3,6 +3,7 @@ package com.github.k2ocabhinav.ubercloneapp.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,8 @@ public class Wallet {
     private User user;
 
     @Builder.Default
-    private Double balance = 0.0;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY)
