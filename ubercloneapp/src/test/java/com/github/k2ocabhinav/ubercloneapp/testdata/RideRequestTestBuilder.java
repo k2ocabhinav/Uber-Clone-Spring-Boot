@@ -23,7 +23,7 @@ public class RideRequestTestBuilder {
     private RideRequestStatus rideRequestStatus = RideRequestStatus.PENDING;
     private BigDecimal fare = BigDecimal.valueOf(50.0);
     private String promoCode;
-    private Double discountAmount = 0.0;
+    private BigDecimal discountAmount = BigDecimal.ZERO;
 
     public RideRequestTestBuilder withId(Long id) {
         this.id = id;
@@ -62,7 +62,7 @@ public class RideRequestTestBuilder {
         return this;
     }
 
-    public RideRequestTestBuilder withDiscountAmount(Double discountAmount) {
+    public RideRequestTestBuilder withDiscountAmount(BigDecimal discountAmount) {
         this.discountAmount = discountAmount;
         return this;
     }
