@@ -7,6 +7,8 @@ import com.github.k2ocabhinav.ubercloneapp.dto.RiderDto;
 import com.github.k2ocabhinav.ubercloneapp.entities.*;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
+import com.github.k2ocabhinav.ubercloneapp.events.RideCancelledEvent;
+import com.github.k2ocabhinav.ubercloneapp.events.RideRequestedEvent;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
@@ -20,6 +22,7 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.RideStrategyManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,6 +44,7 @@ public class RiderServiceImpl implements RiderService {
     private final DriverService driverService;
     private final RatingService ratingService;
     private final PromoCodeService promoCodeService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -70,6 +74,8 @@ public class RiderServiceImpl implements RiderService {
         rideStrategyManager
                 .driverMatchingStrategy(rider.getRating()).findMatchingDrivers(rideRequest);
 
+        eventPublisher.publishEvent(new RideRequestedEvent(this, savedRideRequest));
+
         return modelMapper.map(savedRideRequest, RideRequestDto.class);
     }
 
@@ -89,6 +95,8 @@ public class RiderServiceImpl implements RiderService {
 
         Ride savedRide = rideService.updateRideStatus(ride, RideStatus.CANCELLED);
         driverService.updateDriverAvailability(ride.getDriver(), true);
+
+        eventPublisher.publishEvent(new RideCancelledEvent(this, savedRide));
 
         return modelMapper.map(savedRide, RideDto.class);
     }

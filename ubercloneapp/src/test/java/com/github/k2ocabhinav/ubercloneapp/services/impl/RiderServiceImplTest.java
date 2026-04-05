@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -70,6 +71,9 @@ class RiderServiceImplTest {
     private PromoCodeService promoCodeService;
 
     @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @Mock
     private RideFareCalculationStrategy fareCalculationStrategy;
 
     @Mock
@@ -101,7 +105,8 @@ class RiderServiceImplTest {
                 rideService,
                 driverService,
                 ratingService,
-                promoCodeService);
+                promoCodeService,
+                eventPublisher);
 
         User testUser = User.builder()
                 .id(1L)
@@ -170,6 +175,7 @@ class RiderServiceImplTest {
         assertThat(result).isNotNull();
         verify(rideRequestRepository).save(testRideRequest);
         assertThat(testRideRequest.getFare()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
+        verify(eventPublisher).publishEvent(any());
     }
 
     @Test
@@ -185,6 +191,7 @@ class RiderServiceImplTest {
         assertThat(result).isNotNull();
         verify(rideService).updateRideStatus(testRide, RideStatus.CANCELLED);
         verify(driverService).updateDriverAvailability(testRide.getDriver(), true);
+        verify(eventPublisher).publishEvent(any());
     }
 
     @Test

@@ -26,6 +26,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,6 +75,9 @@ class DriverServiceImplTest {
     @Mock
     private UserPrincipal userPrincipal;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private DriverServiceImpl driverService;
 
     private Driver testDriver;
@@ -83,7 +87,7 @@ class DriverServiceImplTest {
     @BeforeEach
     void setUp() {
         driverService = new DriverServiceImpl(
-                rideRequestService, driverRepository, rideService, modelMapper, paymentService, ratingService, driverEarningsService);
+                rideRequestService, driverRepository, rideService, modelMapper, paymentService, ratingService, driverEarningsService, eventPublisher);
 
         testDriver = Driver.builder()
                 .id(1L)

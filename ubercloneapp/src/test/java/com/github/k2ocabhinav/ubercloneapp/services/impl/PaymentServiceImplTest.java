@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,9 @@ class PaymentServiceImplTest {
     @Mock
     private PaymentStrategy paymentStrategy;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private PaymentServiceImpl paymentService;
 
     private Ride testRide;
@@ -41,7 +46,7 @@ class PaymentServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentServiceImpl(paymentRepository, paymentStrategyManager);
+        paymentService = new PaymentServiceImpl(paymentRepository, paymentStrategyManager, eventPublisher);
 
         testRide = Ride.builder()
                 .id(1L)

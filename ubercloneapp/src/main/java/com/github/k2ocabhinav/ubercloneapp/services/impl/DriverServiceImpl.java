@@ -8,12 +8,17 @@ import com.github.k2ocabhinav.ubercloneapp.entities.Ride;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideRequestStatus;
 import com.github.k2ocabhinav.ubercloneapp.entities.enums.RideStatus;
+import com.github.k2ocabhinav.ubercloneapp.events.RideAcceptedEvent;
+import com.github.k2ocabhinav.ubercloneapp.events.RideCancelledEvent;
+import com.github.k2ocabhinav.ubercloneapp.events.RideEndedEvent;
+import com.github.k2ocabhinav.ubercloneapp.events.RideStartedEvent;
 import com.github.k2ocabhinav.ubercloneapp.exceptions.ResourceNotFoundException;
 import com.github.k2ocabhinav.ubercloneapp.repositories.DriverRepository;
 import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +39,7 @@ public class DriverServiceImpl implements DriverService {
     private final PaymentService paymentService;
     private final RatingService ratingService;
     private final DriverEarningsService driverEarningsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -53,6 +59,9 @@ public class DriverServiceImpl implements DriverService {
         Driver savedDriver = driverRepository.save(currentDriver);
 
         Ride ride = rideService.createNewRide(rideRequest, savedDriver);
+
+        eventPublisher.publishEvent(new RideAcceptedEvent(this, ride, currentDriver));
+
         return modelMapper.map(ride, RideDto.class);
     }
 
@@ -72,6 +81,8 @@ public class DriverServiceImpl implements DriverService {
 
         rideService.updateRideStatus(ride, RideStatus.CANCELLED);
         updateDriverAvailability(driver, true);
+
+        eventPublisher.publishEvent(new RideCancelledEvent(this, ride));
 
         return modelMapper.map(ride, RideDto.class);
     }
@@ -100,6 +111,8 @@ public class DriverServiceImpl implements DriverService {
         paymentService.createNewPayment(savedRide);
         ratingService.createNewRating(savedRide);
 
+        eventPublisher.publishEvent(new RideStartedEvent(this, savedRide));
+
         return modelMapper.map(savedRide, RideDto.class);
     }
 
@@ -122,7 +135,9 @@ public class DriverServiceImpl implements DriverService {
         updateDriverAvailability(driver, true);
 
         paymentService.processPayment(ride);
-        
+
+        eventPublisher.publishEvent(new RideEndedEvent(this, savedRide));
+
         // Auto-create earning record for the driver
         driverEarningsService.createEarningRecord(ride);
 
