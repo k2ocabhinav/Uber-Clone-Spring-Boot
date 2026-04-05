@@ -25,6 +25,13 @@ public class RiderController {
 
     private final RiderService riderService;
     private final ScheduledRideService scheduledRideService;
+    private final com.github.k2ocabhinav.ubercloneapp.services.FareEstimationService fareEstimationService;
+
+    @PostMapping("/fare-estimate")
+    @Operation(summary = "Get a fare estimate and ETA for a potential ride")
+    public ResponseEntity<FareEstimateDto> getFareEstimate(@RequestBody FareEstimateRequestDto fareEstimateRequestDto) {
+        return ResponseEntity.ok(fareEstimationService.estimateFare(fareEstimateRequestDto));
+    }
 
     @PostMapping(path = "/requestRide")
     @Operation(summary = "Request an immediate ride")
