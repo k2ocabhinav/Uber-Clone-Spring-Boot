@@ -55,13 +55,13 @@ public class RideRequestTestBuilder {
         return this;
     }
 
-    public RideRequestTestBuilder withFare(Double fare) {
-        this.fare = BigDecimal.valueOf(fare);
+    public RideRequestTestBuilder withFare(BigDecimal fare) {
+        this.fare = fare;
         return this;
     }
 
-    public RideRequestTestBuilder withFare(BigDecimal fare) {
-        this.fare = fare;
+    public RideRequestTestBuilder withFare(Double fare) {
+        this.fare = BigDecimal.valueOf(fare);
         return this;
     }
 

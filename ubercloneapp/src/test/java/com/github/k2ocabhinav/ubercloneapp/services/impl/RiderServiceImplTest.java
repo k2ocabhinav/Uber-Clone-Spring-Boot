@@ -131,7 +131,7 @@ class RiderServiceImplTest {
                 .rider(testRider)
                 .driver(testDriver)
                 .rideStatus(RideStatus.CONFIRMED)
-                .fare(BigDecimal.valueOf(100.0))
+                .fare(100.0)
                 .build();
     }
 
@@ -164,7 +164,11 @@ class RiderServiceImplTest {
 
         assertThat(result).isNotNull();
         verify(rideRequestRepository).save(testRideRequest);
+<<<<<<< HEAD
         assertThat(testRideRequest.getFare()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
+=======
+        assertThat(testRideRequest.getFare()).isEqualTo(BigDecimal.valueOf(150.0));
+>>>>>>> 269d8a7 (fix: update tests to use BigDecimal for fare)
     }
 
     @Test
