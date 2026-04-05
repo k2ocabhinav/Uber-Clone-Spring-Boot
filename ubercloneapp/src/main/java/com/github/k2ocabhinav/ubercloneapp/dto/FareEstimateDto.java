@@ -6,17 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class FareEstimateDto {
-    private BigDecimal estimatedFare;
-    private Double distanceKm;
-    private Double durationMinutes;
+    private BigDecimal estimatedFare; // final total after surge and discount
+    private BigDecimal baseFare; // fare before surge and discount
     private Double surgeMultiplier;
-    private Boolean surgeActive;
-    private java.time.LocalDateTime estimatedPickupTime;
-    private Double promoDiscountStub;
+    private BigDecimal discountAmount; // discount applied
+    private Double distanceKm;
+    private Double durationMinutes; // keeping as Double if service returns double
+    private LocalDateTime estimatedPickupTime;
+    private List<PromoCodeDto> applicablePromos;
 }
