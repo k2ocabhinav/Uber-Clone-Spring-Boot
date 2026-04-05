@@ -49,7 +49,7 @@ public class RiderServiceImpl implements RiderService {
         rideRequest.setRider(rider);
 
         Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(fare);
+        rideRequest.setFare(java.math.BigDecimal.valueOf(fare));
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
 

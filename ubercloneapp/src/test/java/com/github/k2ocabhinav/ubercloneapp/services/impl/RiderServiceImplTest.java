@@ -118,7 +118,7 @@ class RiderServiceImplTest {
                 .id(1L)
                 .rideRequestStatus(RideRequestStatus.PENDING)
                 .rider(testRider)
-                .fare(100.0)
+                .fare(java.math.BigDecimal.valueOf(100.0))
                 .build();
 
         Driver testDriver = Driver.builder()
@@ -163,7 +163,7 @@ class RiderServiceImplTest {
 
         assertThat(result).isNotNull();
         verify(rideRequestRepository).save(testRideRequest);
-        assertThat(testRideRequest.getFare()).isEqualTo(150.0);
+        assertThat(testRideRequest.getFare()).isEqualTo(java.math.BigDecimal.valueOf(150.0));
     }
 
     @Test

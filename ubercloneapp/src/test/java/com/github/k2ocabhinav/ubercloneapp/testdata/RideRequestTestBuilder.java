@@ -21,7 +21,7 @@ public class RideRequestTestBuilder {
     private Rider rider;
     private PaymentMethod paymentMethod = PaymentMethod.WALLET;
     private RideRequestStatus rideRequestStatus = RideRequestStatus.PENDING;
-    private Double fare = 50.0;
+    private java.math.BigDecimal fare = java.math.BigDecimal.valueOf(50.0);
 
     public RideRequestTestBuilder withId(Long id) {
         this.id = id;
@@ -58,7 +58,7 @@ public class RideRequestTestBuilder {
         return this;
     }
 
-    public RideRequestTestBuilder withFare(Double fare) {
+    public RideRequestTestBuilder withFare(java.math.BigDecimal fare) {
         this.fare = fare;
         return this;
     }
