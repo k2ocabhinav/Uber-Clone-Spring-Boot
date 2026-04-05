@@ -32,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,7 +103,7 @@ class DriverServiceImplTest {
                 .driver(testDriver)
                 .rideStatus(RideStatus.CONFIRMED)
                 .otp("1234")
-                .fare(100.0)
+                .fare(BigDecimal.valueOf(100.0))
                 .paymentMethod(PaymentMethod.CASH)
                 .build();
     }
