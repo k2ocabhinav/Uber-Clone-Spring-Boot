@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.scheduled-ride.dispatch-enabled", havingValue = "true", matchIfMissing = true)
 public class ScheduledRideDispatcher {
 
     private final ScheduledRideService scheduledRideService;
