@@ -16,7 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Table(name = "app_user", indexes = {
-        @Index(name = "idx_user_email", columnList = "email")
+        @Index(name = "idx_user_email", columnList = "email"),
+        @Index(name = "idx_user_referral_code", columnList = "referral_code", unique = true)
 })
 public class User {
     @Id
@@ -30,6 +31,9 @@ public class User {
     private String password;
     private String phoneNumber;
     private Boolean active;
+
+    @Column(unique = true)
+    private String referralCode;
 
     @CreationTimestamp
     private LocalDateTime createdTime;

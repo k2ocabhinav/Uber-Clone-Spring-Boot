@@ -10,13 +10,11 @@ import com.github.k2ocabhinav.ubercloneapp.strategies.RideStrategyManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
@@ -44,7 +42,6 @@ class FareEstimationServiceImplTest {
     private FareEstimationServiceImpl fareEstimationService;
 
     private FareEstimateRequestDto requestDto;
-    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     @BeforeEach
     void setUp() {

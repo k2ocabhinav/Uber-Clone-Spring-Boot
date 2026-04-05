@@ -12,6 +12,7 @@ import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
+import com.github.k2ocabhinav.ubercloneapp.services.PromoCodeService;
 import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +40,7 @@ public class RiderServiceImpl implements RiderService {
     private final RideService rideService;
     private final DriverService driverService;
     private final RatingService ratingService;
+    private final PromoCodeService promoCodeService;
 
     @Override
     @Transactional
@@ -49,16 +50,24 @@ public class RiderServiceImpl implements RiderService {
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
         rideRequest.setRider(rider);
 
-        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-<<<<<<< HEAD
-        rideRequest.setFare(BigDecimal.valueOf(fare));
-=======
-        rideRequest.setFare(java.math.BigDecimal.valueOf(fare));
->>>>>>> main
+        BigDecimal fare = BigDecimal.valueOf(rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest));
+
+        String promoCode = rideRequestDto.getPromoCode();
+        if (promoCode != null && !promoCode.isBlank()) {
+            com.github.k2ocabhinav.ubercloneapp.dto.PromoCodeResultDto promoResult = 
+                promoCodeService.validateAndApplyPromo(promoCode, rider.getUser(), fare);
+            if (promoResult.isValid() && promoResult.getDiscountAmount() != null) {
+                rideRequest.setPromoCode(promoCode);
+                rideRequest.setDiscountAmount(promoResult.getDiscountAmount().doubleValue());
+                fare = fare.subtract(promoResult.getDiscountAmount());
+            }
+        }
+
+        rideRequest.setFare(fare);
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
 
-        List<Driver> drivers = rideStrategyManager
+        rideStrategyManager
                 .driverMatchingStrategy(rider.getRating()).findMatchingDrivers(rideRequest);
 
         return modelMapper.map(savedRideRequest, RideRequestDto.class);

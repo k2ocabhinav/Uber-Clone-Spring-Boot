@@ -53,6 +53,10 @@ public class RideRequest {
     @Column(precision = 10, scale = 2)
     private java.math.BigDecimal fare;
 
+    private String promoCode;
+
+    private Double discountAmount;
+
     @Version
     private Long version;
 

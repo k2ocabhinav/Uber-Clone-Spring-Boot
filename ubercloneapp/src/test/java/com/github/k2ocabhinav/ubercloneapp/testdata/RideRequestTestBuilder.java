@@ -22,6 +22,8 @@ public class RideRequestTestBuilder {
     private PaymentMethod paymentMethod = PaymentMethod.WALLET;
     private RideRequestStatus rideRequestStatus = RideRequestStatus.PENDING;
     private BigDecimal fare = BigDecimal.valueOf(50.0);
+    private String promoCode;
+    private Double discountAmount = 0.0;
 
     public RideRequestTestBuilder withId(Long id) {
         this.id = id;
@@ -54,14 +56,24 @@ public class RideRequestTestBuilder {
         this.rideRequestStatus = rideRequestStatus;
         return this;
     }
+    
+    public RideRequestTestBuilder withPromoCode(String promoCode) {
+        this.promoCode = promoCode;
+        return this;
+    }
 
-    public RideRequestTestBuilder withFare(Double fare) {
-        this.fare = BigDecimal.valueOf(fare);
+    public RideRequestTestBuilder withDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
         return this;
     }
 
     public RideRequestTestBuilder withFare(BigDecimal fare) {
         this.fare = fare;
+        return this;
+    }
+
+    public RideRequestTestBuilder withFare(Double fare) {
+        this.fare = BigDecimal.valueOf(fare);
         return this;
     }
 
@@ -79,6 +91,8 @@ public class RideRequestTestBuilder {
                 .paymentMethod(paymentMethod)
                 .rideRequestStatus(rideRequestStatus)
                 .fare(fare)
+                .promoCode(promoCode)
+                .discountAmount(discountAmount)
                 .build();
     }
 

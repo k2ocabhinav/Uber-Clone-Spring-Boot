@@ -24,4 +24,6 @@ public class RideDto {
     private PaymentMethod paymentMethod;
     private RideStatus rideStatus;
     private Double fair;
+    private String promoCode;
+    private Double discountAmount;
 }

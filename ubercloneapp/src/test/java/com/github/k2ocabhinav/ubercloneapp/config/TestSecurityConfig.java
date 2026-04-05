@@ -8,17 +8,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @TestConfiguration
+@EnableMethodSecurity
 public class TestSecurityConfig {
 
     @Bean
@@ -39,10 +43,11 @@ public class TestSecurityConfig {
 
                     if (userId != null && email != null && role != null) {
                         UserPrincipal principal = new UserPrincipal(Long.valueOf(userId), email, role);
+                        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
+                                new UsernamePasswordAuthenticationToken(principal, null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                    } else {
+                    } else if (SecurityContextHolder.getContext().getAuthentication() == null) {
                         SecurityContextHolder.clearContext();
                     }
 

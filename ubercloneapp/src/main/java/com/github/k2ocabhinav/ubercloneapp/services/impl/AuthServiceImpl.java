@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 import java.util.Set;
 
 import static com.github.k2ocabhinav.ubercloneapp.entities.enums.Role.DRIVER;
@@ -69,6 +70,10 @@ public class AuthServiceImpl implements AuthService {
         mappedUser.setPassword(passwordEncoder.encode(signupDto.getPassword()));
         mappedUser.setActive(true);
         mappedUser.setRoles(Set.of(Role.RIDER));
+
+        String referralCode = generateReferralCode(signupDto.getName());
+        mappedUser.setReferralCode(referralCode);
+
         User savedUser = userRepository.save(mappedUser);
 
 //      CREATE USER RELATED ENTITIES
@@ -80,6 +85,13 @@ public class AuthServiceImpl implements AuthService {
 
 
         return modelMapper.map(savedUser, UserDto.class);
+    }
+
+    private String generateReferralCode(String name) {
+        String prefix = (name != null && name.length() >= 4) ? name.substring(0, 4).toUpperCase() : "USER";
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        return prefix + code;
     }
 
     @Override
