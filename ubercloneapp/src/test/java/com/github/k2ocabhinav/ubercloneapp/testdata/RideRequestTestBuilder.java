@@ -13,12 +13,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class RideRequestTestBuilder {
-    private static final GeometryFactory GF = new GeometryFactory(new PrecisionModel(), 4326);
-
-    private Long id = 1L;
-    private Point pickupLocation = GF.createPoint(new Coordinate(-73.935242, 40.730610));
-    private Point dropOffLocation = GF.createPoint(new Coordinate(-73.935242, 40.740610));
+    private Long id;
+    private Point pickupLocation;
+    private Point dropOffLocation;
     private LocalDateTime requestedTime = LocalDateTime.now();
+    private LocalDateTime scheduledTime;
     private Rider rider;
     private PaymentMethod paymentMethod = PaymentMethod.WALLET;
     private RideRequestStatus rideRequestStatus = RideRequestStatus.PENDING;
@@ -29,28 +28,25 @@ public class RideRequestTestBuilder {
         return this;
     }
 
-    public RideRequestTestBuilder withPickupLocation(double lon, double lat) {
-        this.pickupLocation = GF.createPoint(new Coordinate(lon, lat));
+    public RideRequestTestBuilder withPickupLocation(double x, double y) {
+        GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+        this.pickupLocation = factory.createPoint(new Coordinate(x, y));
         return this;
     }
 
-    public RideRequestTestBuilder withDropOffLocation(double lon, double lat) {
-        this.dropOffLocation = GF.createPoint(new Coordinate(lon, lat));
+    public RideRequestTestBuilder withDropOffLocation(double x, double y) {
+        GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+        this.dropOffLocation = factory.createPoint(new Coordinate(x, y));
         return this;
     }
 
-    public RideRequestTestBuilder withRequestedTime(LocalDateTime requestedTime) {
-        this.requestedTime = requestedTime;
+    public RideRequestTestBuilder withScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
         return this;
     }
 
     public RideRequestTestBuilder withRider(Rider rider) {
         this.rider = rider;
-        return this;
-    }
-
-    public RideRequestTestBuilder withPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
         return this;
     }
 
@@ -70,11 +66,15 @@ public class RideRequestTestBuilder {
     }
 
     public RideRequest build() {
+        if (pickupLocation == null) withPickupLocation(77.1, 28.1);
+        if (dropOffLocation == null) withDropOffLocation(77.2, 28.2);
+
         return RideRequest.builder()
                 .id(id)
                 .pickupLocation(pickupLocation)
                 .dropOffLocation(dropOffLocation)
                 .requestedTime(requestedTime)
+                .scheduledTime(scheduledTime)
                 .rider(rider)
                 .paymentMethod(paymentMethod)
                 .rideRequestStatus(rideRequestStatus)
@@ -84,13 +84,5 @@ public class RideRequestTestBuilder {
 
     public static RideRequestTestBuilder aRideRequest() {
         return new RideRequestTestBuilder();
-    }
-
-    public static RideRequestTestBuilder aPendingRideRequest() {
-        return aRideRequest().withStatus(RideRequestStatus.PENDING);
-    }
-
-    public static RideRequestTestBuilder aConfirmedRideRequest() {
-        return aRideRequest().withStatus(RideRequestStatus.CONFIRMED);
     }
 }

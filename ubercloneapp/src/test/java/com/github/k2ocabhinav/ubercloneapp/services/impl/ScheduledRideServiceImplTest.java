@@ -3,7 +3,6 @@ package com.github.k2ocabhinav.ubercloneapp.services.impl;
 import com.github.k2ocabhinav.ubercloneapp.configs.ScheduledRideConfig;
 import com.github.k2ocabhinav.ubercloneapp.dto.RideRequestDto;
 import com.github.k2ocabhinav.ubercloneapp.dto.ScheduledRideDto;
-import com.github.k2ocabhinav.ubercloneapp.entities.Driver;
 import com.github.k2ocabhinav.ubercloneapp.entities.RideRequest;
 import com.github.k2ocabhinav.ubercloneapp.entities.Rider;
 import com.github.k2ocabhinav.ubercloneapp.entities.User;

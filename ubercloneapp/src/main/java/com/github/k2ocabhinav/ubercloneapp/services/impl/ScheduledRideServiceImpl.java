@@ -52,8 +52,8 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
         rideRequest.setRideRequestStatus(RideRequestStatus.SCHEDULED);
         rideRequest.setScheduledTime(scheduledTime);
 
-        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(BigDecimal.valueOf(fare));
+        double rawFare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
+        rideRequest.setFare(BigDecimal.valueOf(rawFare));
 
         RideRequest saved = rideRequestRepository.save(rideRequest);
         log.info("Scheduled ride created: id={}, scheduledTime={}", saved.getId(), scheduledTime);
@@ -81,8 +81,8 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
         RideRequest rideRequest = findOwnedScheduledRequest(rideRequestId);
         rideRequest.setScheduledTime(newScheduledTime);
 
-        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
-        rideRequest.setFare(BigDecimal.valueOf(fare));
+        double rawFare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
+        rideRequest.setFare(BigDecimal.valueOf(rawFare));
 
         RideRequest saved = rideRequestRepository.save(rideRequest);
         log.info("Scheduled ride rescheduled: id={}, newTime={}", rideRequestId, newScheduledTime);
@@ -129,6 +129,7 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
 
                 log.info("Dispatched scheduled ride: id={}, matchedDrivers={}",
                         rideRequest.getId(), matchedDrivers.size());
+                // TODO: notify matched drivers when notification feature is integrated
                 dispatched++;
             } catch (Exception e) {
                 log.error("Failed to dispatch scheduled ride id={}: {}",
