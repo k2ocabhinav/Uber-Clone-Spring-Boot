@@ -15,4 +15,8 @@ public class FareEstimateDto {
     private BigDecimal estimatedFare;
     private Double distanceKm;
     private Double durationMinutes;
+    private Double surgeMultiplier;
+    private Boolean surgeActive;
+    private java.time.LocalDateTime estimatedPickupTime;
+    private Double promoDiscountStub;
 }

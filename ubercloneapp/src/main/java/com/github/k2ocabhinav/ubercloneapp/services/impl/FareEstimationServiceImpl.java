@@ -38,6 +38,10 @@ public class FareEstimationServiceImpl implements FareEstimationService {
                 .estimatedFare(BigDecimal.valueOf(fare))
                 .distanceKm(distanceKm)
                 .durationMinutes(durationMins)
+                .surgeMultiplier(1.0)
+                .surgeActive(false)
+                .estimatedPickupTime(java.time.LocalDateTime.now().plusMinutes(10))
+                .promoDiscountStub(0.0)
                 .build();
     }
 }
