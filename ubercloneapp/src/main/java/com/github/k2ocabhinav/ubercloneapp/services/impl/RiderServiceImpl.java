@@ -12,6 +12,7 @@ import com.github.k2ocabhinav.ubercloneapp.repositories.RideRequestRepository;
 import com.github.k2ocabhinav.ubercloneapp.repositories.RiderRepository;
 import com.github.k2ocabhinav.ubercloneapp.security.UserPrincipal;
 import com.github.k2ocabhinav.ubercloneapp.services.DriverService;
+import com.github.k2ocabhinav.ubercloneapp.services.PromoCodeService;
 import com.github.k2ocabhinav.ubercloneapp.services.RatingService;
 import com.github.k2ocabhinav.ubercloneapp.services.RideService;
 import com.github.k2ocabhinav.ubercloneapp.services.RiderService;
@@ -40,6 +41,7 @@ public class RiderServiceImpl implements RiderService {
     private final RideService rideService;
     private final DriverService driverService;
     private final RatingService ratingService;
+    private final PromoCodeService promoCodeService;
 
     @Override
     @Transactional
@@ -50,6 +52,18 @@ public class RiderServiceImpl implements RiderService {
         rideRequest.setRider(rider);
 
         Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
+
+        String promoCode = rideRequestDto.getPromoCode();
+        if (promoCode != null && !promoCode.isBlank()) {
+            com.github.k2ocabhinav.ubercloneapp.dto.PromoCodeResultDto promoResult = 
+                promoCodeService.validateAndApplyPromo(promoCode, BigDecimal.valueOf(fare), rider.getId());
+            if (promoResult.isValid() && promoResult.getDiscountAmount() != null) {
+                rideRequest.setPromoCode(promoCode);
+                rideRequest.setDiscountAmount(promoResult.getDiscountAmount().doubleValue());
+                fare = fare - promoResult.getDiscountAmount().doubleValue();
+            }
+        }
+
         rideRequest.setFare(BigDecimal.valueOf(fare));
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);

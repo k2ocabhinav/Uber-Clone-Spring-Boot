@@ -55,6 +55,10 @@ public class Ride{
 
     private Double fare;
 
+    private String promoCode;
+
+    private Double discountAmount;
+
     private String otp;
 
     @Version

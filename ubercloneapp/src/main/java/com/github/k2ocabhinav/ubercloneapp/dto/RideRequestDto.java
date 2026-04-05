@@ -21,6 +21,8 @@ public class RideRequestDto {
     private LocalDateTime requestedTime;
 
     private Double fare;
+    private String promoCode;
+    private Double discountAmount;
     private RiderDto rider;
 
     private RideRequestStatus rideRequestStatus;
